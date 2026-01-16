@@ -37,10 +37,10 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
         onActiveLicenseSuccess: () {
           print("人脸激活成功");
         },
-        onFindPersonSuccess: (List<Map<String, dynamic>> persons) {
+        onFindPersonSuccess: (List<FlutterRk3568UvccameraFindUser> persons) {
           for(int i = 0; i < persons.length; i++){
-            Map<String, dynamic> person = persons[i];
-            print("找到人脸：${person['name']}, 得分：${person['score']}");
+            FlutterRk3568UvccameraFindUser findUser = persons[i];
+            print("找到人脸：${findUser.userName}, 用户 id: ${findUser.userId}, 得分：${findUser.userScore}, 文件：${findUser.file}");
           };
         },
         onFindQrCodeSuccess: (String qrCode) {
@@ -74,10 +74,10 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
       rgbAndNirWidth: 640, 
       rgbAndNirHeight: 480,
       maxSearchNum: 2,
-      mirrorVideoRGB: true,
-      mirrorVideoNIR: true,
+      mirrorVideoRGB: false,
+      mirrorVideoNIR: false,
       faceImagesPath: "/sdcard/faces",
-      liveScoreThreshold: 0.8,
+      liveScoreThreshold: 0.75,
       idScoreThreshold: 0.8,
       rgbAndNirScoreThreshold: 0.8);
     await plugin.initFaceEngine(config);

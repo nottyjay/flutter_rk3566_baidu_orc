@@ -30,10 +30,13 @@ import com.aialphay.android.rk3568.arcface.config.ArcFaceConfig;
 import com.aialphay.android.rk3568.arcface.engine.ArcFaceEngine;
 import com.aialphay.android.rk3568.iccard.ICCardReadService;
 import com.aialphay.android.rk3568.qrcode.QrCodeParser;
+import com.aialphay.android.rk3568.utils.BitmapUtils;
+import com.aialphay.android.rk3568.utils.FileUtils;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.R;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.callback.Rk3568UvcCameraCallback;
 import com.king.wechat.qrcode.WeChatQRCodeDetector;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -165,9 +168,23 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
                       .map(
                           user -> {
                             Map<String, Object> map = new HashMap<>();
+                            map.put("userId", user.getUserId());
                             map.put("name", user.getUserName());
                             map.put("path", user.getImageName());
                             map.put("score", user.getFeatureScore());
+                            String file =
+                                ArcFaceConfig.getInstance().getFaceImagesPath()
+                                    + "/search/"
+                                    + System.currentTimeMillis()
+                                    + ".jpg";
+                            File saveFile = new File(file);
+                            if (!saveFile.getParentFile().exists()) {
+                              saveFile.getParentFile().mkdirs();
+                            }
+                            FileUtils.saveBitmap(
+                                new File(file),
+                                BitmapUtils.getInstaceBmp(livenessModel.getBdFaceImageInstance()));
+                            map.put("file", file);
                             return map;
                           })
                       .collect(Collectors.toList());

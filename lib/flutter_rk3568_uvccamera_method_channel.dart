@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 
 import 'flutter_rk3568_uvccamera_platform_interface.dart';
+import 'flutter_rk3568_uvccamera.dart';
 
 class MethodChannelFlutterRk3568Uvccamera
     extends FlutterRk3568UvccameraPlatform {
@@ -117,7 +118,7 @@ class MethodChannelFlutterRk3568Uvccamera
       case 'findPersonSuccess':
         final List<dynamic> rawList =
             call.arguments as List<dynamic>? ?? <dynamic>[];
-        final List<Map<String, dynamic>> persons = rawList
+        final List<Map<String, dynamic>> rawPersons = rawList
             .map(
               (dynamic item) => (item as Map<dynamic, dynamic>).map((
                 dynamic key,
@@ -126,6 +127,9 @@ class MethodChannelFlutterRk3568Uvccamera
                 return MapEntry(key.toString(), value);
               }),
             )
+            .toList();
+        final List<FlutterRk3568UvccameraFindUser> persons = rawPersons
+            .map((map) => FlutterRk3568UvccameraFindUser.fromMap(map))
             .toList();
         callbacks.onFindPersonSuccess?.call(persons);
         break;

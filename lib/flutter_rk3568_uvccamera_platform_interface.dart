@@ -1,6 +1,7 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'flutter_rk3568_uvccamera_method_channel.dart';
+import 'flutter_rk3568_uvccamera.dart';
 
 class FlutterRk3568UvccameraCallbacks {
   FlutterRk3568UvccameraCallbacks({
@@ -30,7 +31,7 @@ class FlutterRk3568UvccameraCallbacks {
   final void Function()? onBatchAddFaceSuccess;
   final void Function(double percent)? onUpdateAddFaceProcess;
   final void Function(String qrCode)? onFindQrCodeSuccess;
-  final void Function(List<Map<String, dynamic>> persons)? onFindPersonSuccess;
+  final void Function(List<FlutterRk3568UvccameraFindUser> persons)? onFindPersonSuccess;
   final void Function(String cardId)? onReadICCardIdSuccess;
 }
 

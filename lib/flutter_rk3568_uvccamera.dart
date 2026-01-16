@@ -24,6 +24,7 @@ class FlutterRk3568UvccameraConfig {
     this.nirVideoDirection,
     this.faceImagesPath,
   });
+  
 
   final String? rgbCameraName;
   final String? nirCameraName;
@@ -65,6 +66,33 @@ class FlutterRk3568UvccameraConfig {
       'nirVideoDirection': nirVideoDirection ?? 0,
       'faceImagesPath': faceImagesPath,
     };
+  }
+}
+
+class FlutterRk3568UvccameraFindUser {
+  
+  final String userId;
+  final String userName;
+  final String userPath;
+  final double userScore;
+  final String file;
+
+  FlutterRk3568UvccameraFindUser({
+    required this.userId,
+    required this.userName,
+    required this.userPath,
+    required this.userScore,
+    required this.file,
+  });
+
+  factory FlutterRk3568UvccameraFindUser.fromMap(Map<String, dynamic> map) {
+    return FlutterRk3568UvccameraFindUser(
+      userId: map['userId'] as String? ?? '',
+      userName: map['name'] as String? ?? '',
+      userPath: map['path'] as String? ?? '',
+      userScore: map['score'] as double? ?? 0.0,
+      file: map['file'] as String? ?? '',
+    );
   }
 }
 
