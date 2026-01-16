@@ -3,6 +3,7 @@ package com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvcca
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.aialphay.android.rk3568.arcface.bean.User;
 import com.aialphay.android.rk3568.arcface.config.ArcFaceConfig;
 import com.aialphay.android.rk3568.arcface.db.DBManager;
 import com.aialphay.android.rk3568.arcface.engine.ArcFaceEngine;
@@ -24,6 +25,16 @@ public class ArcFaceUtils {
 
   public static void addFace(String path, Rk3568UvcCameraCallback callback) {
     File faceImgFile = new File(path);
+    File faceFileSuccess;
+    if (ArcFaceConfig.getInstance().getFaceImagesPath() != null
+        && ArcFaceConfig.getInstance().getFaceImagesPath().trim() != "") {
+      faceFileSuccess = new File(ArcFaceConfig.getInstance().getFaceImagesPath());
+      if (!faceFileSuccess.exists()) {
+        faceFileSuccess.mkdirs();
+      }
+    } else {
+      faceFileSuccess = null;
+    }
     String picName = faceImgFile.getName();
     String username = FileUtils.getFileNameNoEx(picName);
     final Bitmap bitmap = BitmapFactory.decodeFile(faceImgFile.getAbsolutePath());
@@ -34,17 +45,31 @@ public class ArcFaceUtils {
     }
     if (ret == 256) {
       String[] users = username.split("_");
-      boolean importDBSuccess =
-          ArcFaceEngine.getInstance()
-              .registerUserIntoDBmanager(
-                  DBManager.GROUP_ID, users[0], users[1], picName, null, bytes);
-      if (importDBSuccess) {
-        synchronized (DataBaseManager.getInstance().getAllUserList()) {
-          ModelManager.getInstance()
-              .getFaceFeature()
-              .featurePush(DataBaseManager.getInstance().getAllUserList());
+      if (users.length == 3) {
+        User user = DataBaseManager.getInstance().getUserById(Integer.parseInt(users[1]));
+        if (user != null) {
+          DataBaseManager.getInstance().deleteFace(users[1]);
+          FileUtils.deleteFile(faceFileSuccess.getAbsolutePath() + "/" + username + ".jpg");
         }
-        callback.addFaceSuccess();
+        boolean importDBSuccess =
+            ArcFaceEngine.getInstance()
+                .registerUserIntoDBmanager(
+                    DBManager.GROUP_ID, users[1], users[2], picName, null, bytes);
+        if (importDBSuccess) {
+          if (faceFileSuccess != null) {
+            FileUtils.copyFile(
+                faceImgFile.getAbsolutePath(),
+                faceFileSuccess.getAbsolutePath() + "/" + username + ".jpg");
+          }
+          synchronized (DataBaseManager.getInstance().getAllUserList()) {
+            ModelManager.getInstance()
+                .getFaceFeature()
+                .featurePush(DataBaseManager.getInstance().getAllUserList());
+          }
+          callback.addFaceSuccess();
+        } else {
+          callback.addFaceFailed();
+        }
       } else {
         callback.addFaceFailed();
       }
@@ -98,14 +123,16 @@ public class ArcFaceUtils {
                 count.incrementAndGet();
                 if (ret == 256) {
                   String[] users = username.split("_");
-                  boolean importDBSuccess =
-                      ArcFaceEngine.getInstance()
-                          .registerUserIntoDBmanager(
-                              DBManager.GROUP_ID, users[0], users[1], picName, null, bytes);
-                  if (faceFileSuccess != null) {
-                    FileUtils.copyFile(
-                        file.getAbsolutePath(),
-                        faceFileSuccess.getAbsolutePath() + "/" + username + ".jpg");
+                  if (users.length == 3) {
+                    boolean importDBSuccess =
+                        ArcFaceEngine.getInstance()
+                            .registerUserIntoDBmanager(
+                                DBManager.GROUP_ID, users[1], users[2], picName, null, bytes);
+                    if (faceFileSuccess != null) {
+                      FileUtils.copyFile(
+                          file.getAbsolutePath(),
+                          faceFileSuccess.getAbsolutePath() + "/" + username + ".jpg");
+                    }
                   }
                 } else {
                   FileUtils.copyFile(

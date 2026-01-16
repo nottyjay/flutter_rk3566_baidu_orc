@@ -19,8 +19,8 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/circle_bar_bg"
-            android:src="@android:drawable/ic_menu_close_clear_cancel"
             android:contentDescription="Close button"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -89,6 +89,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
         </FrameLayout>
+
+        <Button
+            android:id="@+id/cancel_payment_button"
+            android:layout_width="120dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="16dp"
+            android:text="取消支付"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:background="@drawable/circle_bar_bg"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rgb_container" />
 
         <com.serenegiant.widget.AspectRatioSurfaceView
             android:id="@+id/ir_camera_view"

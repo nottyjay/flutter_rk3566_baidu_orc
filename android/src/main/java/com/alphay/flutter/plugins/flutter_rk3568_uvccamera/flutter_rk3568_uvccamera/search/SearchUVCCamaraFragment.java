@@ -16,6 +16,8 @@ import static com.ai.face.faceSearch.search.SearchProcessTipsCode.TOO_MUCH_FACE;
 
 import android.graphics.Bitmap;
 import android.util.Log;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import androidx.fragment.app.FragmentActivity;
 import com.ai.face.base.utils.BrightnessUtil;
@@ -52,6 +54,7 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
   private FragmentActivity activity;
   private TextView searchTipsTextView;
   private ImageButton closeButton;
+  private Button cancelPaymentButton;
 
   private Bitmap irBitmap;
   private Bitmap rgbBitmap;
@@ -70,12 +73,23 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
     super.initViews();
     searchTipsTextView = nativeView.findViewById(R.id.search_tips);
     closeButton = nativeView.findViewById(R.id.close_button);
-    closeButton.setOnClickListener(v -> {
-      // 关闭当前fragment
-      if (activity != null && !activity.isFinishing()) {
-        activity.onBackPressed();
-      }
-    });
+    cancelPaymentButton = nativeView.findViewById(R.id.cancel_payment_button);
+    closeButton.setOnClickListener(
+        v -> {
+          // 关闭当前fragment
+          this.dismissAllowingStateLoss();
+          if (activity != null && !activity.isFinishing()) {
+            //            activity.moveTaskToBack(false);
+          }
+        });
+    cancelPaymentButton.setOnClickListener(
+        v -> {
+          // 取消支付按钮，效果与关闭窗口按钮相同
+          this.dismissAllowingStateLoss();
+          if (activity != null && !activity.isFinishing()) {
+            //            activity.moveTaskToBack(false);
+          }
+        });
     //    BrightnessUtil.setBrightness(requireActivity(), 1.0f); // 高亮白色背景屏幕光可以当补光灯
   }
 
