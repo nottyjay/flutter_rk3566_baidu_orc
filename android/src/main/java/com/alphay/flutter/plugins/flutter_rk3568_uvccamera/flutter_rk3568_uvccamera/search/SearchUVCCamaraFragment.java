@@ -51,6 +51,7 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
 
   private FragmentActivity activity;
   private TextView searchTipsTextView;
+  private ImageButton closeButton;
 
   private Bitmap irBitmap;
   private Bitmap rgbBitmap;
@@ -68,6 +69,13 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
   public void initViews() {
     super.initViews();
     searchTipsTextView = nativeView.findViewById(R.id.search_tips);
+    closeButton = nativeView.findViewById(R.id.close_button);
+    closeButton.setOnClickListener(v -> {
+      // 关闭当前fragment
+      if (activity != null && !activity.isFinishing()) {
+        activity.onBackPressed();
+      }
+    });
     //    BrightnessUtil.setBrightness(requireActivity(), 1.0f); // 高亮白色背景屏幕光可以当补光灯
   }
 
