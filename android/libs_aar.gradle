@@ -1,0 +1,36 @@
+// libs_local.gradle 内容，直接复制粘贴
+apply plugin: 'maven-publish'
+
+String mavenLocalPath = project(":flutter_rk3568_uvccamera").mkdir("m2repository").absolutePath
+
+// 要发布的本地aar文件路径
+def aarFile = file('libs/orbbec_module-debug.aar')
+// 自定义你的aar的maven坐标（随便写，只要唯一即可）
+def groupId = "com.orbbec.module"
+def artifactId = "orbbec-module"
+def version = "1.0.0"
+
+// 发布本地maven仓库
+publishing {
+    publications {
+        aar(MavenPublication) {
+            groupId = groupId
+            artifactId = artifactId
+            version = version
+            artifact aarFile
+        }
+    }
+    repositories {
+        maven {
+            // 发布到 本项目的build目录下的本地maven仓库
+            url mavenLocalPath
+        }
+    }
+}
+
+// 同步任务：每次构建前先发布aar到本地maven
+tasks.whenTaskAdded { task ->
+    if (task.name.startsWith('assemble')) {
+        task.dependsOn publish
+    }
+}
