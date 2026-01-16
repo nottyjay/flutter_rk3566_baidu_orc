@@ -33,11 +33,8 @@ public class ICCardReadService {
       if (!ReaderAndroidUsb.isSupported(device)) {
         continue;
       }
-      reader = new ReaderAndroidUsb(usbManager);
-      int ret = reader.openReader(device);
-      if (ret >= 0) {
-        targetDevice = device;
-      }
+      targetDevice = device;
+      break; // 找到第一个支持的设备即可
     }
   }
 
@@ -48,20 +45,28 @@ public class ICCardReadService {
               new Runnable() {
                 @Override
                 public void run() {
+                  ReaderAndroidUsb localReader = null;
                   try {
+                    // 在读卡操作开始时构建读卡通道
+                    localReader = new ReaderAndroidUsb(usbManager);
+                    int ret = localReader.openReader(targetDevice);
+                    if (ret < 0) {
+                      isFinished = true;
+                      return;
+                    }
                     while (!isFinished) {
                       int cardType = -1;
                       try {
-                        cardType = reader.request(2);
+                        cardType = localReader.request(2);
                       } catch (Exception e) {
                         Thread.sleep(50);
                         continue;
                       }
                       if (cardType >= 0) {
-                        reader.beep(1, 1, 2);
+                        localReader.beep(1, 1, 2);
                         String cardSerialHex = null;
                         try {
-                          cardSerialHex = reader.openCard(1);
+                          cardSerialHex = localReader.openCard(1);
                           callback.onReaCardIDSuccess(cardSerialHex);
                         } catch (Exception e) {
                           throw new RuntimeException(e);
@@ -74,6 +79,12 @@ public class ICCardReadService {
                   } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     isFinished = true;
+                  } finally {
+                    // 确保每次读卡操作完成后进行清理
+                    if (localReader != null) {
+                        localReader.closeReader();
+                        localReader = null;
+                    }
                   }
                 }
               });
@@ -81,7 +92,7 @@ public class ICCardReadService {
   }
 
   private boolean checkDevice() {
-    if (targetDevice == null || reader == null) {
+    if (targetDevice == null) {
       return false;
     }
     if (ArcFaceConstants.icCardFuture != null && !ArcFaceConstants.icCardFuture.isDone()) {
