@@ -763,7 +763,7 @@ public class ArcFaceEngine {
       List<Feature> featureResult =
           ModelManager.getInstance()
               .getFaceFeature()
-              .featureSearch(feature, type, ArcFaceConfig.getInstance().getMaxSearchNum(), false);
+              .featureSearch(feature, type, 1, false);
       if (featureResult != null && featureResult.size() > 0) {
         List<User> users = new ArrayList<>();
         float threholdScore = 0;

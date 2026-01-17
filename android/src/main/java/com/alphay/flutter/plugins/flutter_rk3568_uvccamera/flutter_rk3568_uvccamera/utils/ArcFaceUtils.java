@@ -46,7 +46,7 @@ public class ArcFaceUtils {
     if (ret == 256) {
       String[] users = username.split("_");
       if (users.length == 3) {
-        User user = DataBaseManager.getInstance().getUserById(Integer.parseInt(users[1]));
+        User user = DataBaseManager.getInstance().getUserByUserId(users[1]);
         if (user != null) {
           DataBaseManager.getInstance().deleteFace(users[1]);
           FileUtils.deleteFile(faceFileSuccess.getAbsolutePath() + "/" + username + ".jpg");
