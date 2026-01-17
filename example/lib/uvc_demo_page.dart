@@ -98,6 +98,11 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
 
   }
 
+  Future<void> _addFace() async {
+    await plugin.addFace('/sdcard/face_test/46c2d6a597fe4114b5a77387ea318da8_14b0a3b9ed884b7a8bd47c0e903d6bd3_小崔.jpg');
+
+  }
+
   Future<void> _onStartDetect() async {
     await plugin.runDetect();
   }
@@ -116,7 +121,7 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
               child: const Text('清空人脸库'),
             ),
             ElevatedButton(
-              onPressed: _onInitFaces,
+              onPressed: _addFace,
               child: const Text('初始化人脸库'),
             ),
             const SizedBox(height: 8),
