@@ -5,7 +5,9 @@ import android.text.TextUtils;
 
 import com.aialphay.android.rk3568.arcface.bean.User;
 import com.aialphay.android.rk3568.arcface.callback.DataBaseListener;
+import com.aialphay.android.rk3568.arcface.config.ArcFaceConfig;
 import com.aialphay.android.rk3568.arcface.db.DBManager;
+import com.aialphay.android.rk3568.utils.FileUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +58,11 @@ public class DataBaseManager {
   }
 
   public void deleteFace(String userId) {
-    DBManager.getInstance().deleteUser(userId);
+    User user = DBManager.getInstance().queryUser(userId);
+    if(user != null) {
+      DBManager.getInstance().deleteUser(userId);
+      FileUtils.deleteFile(ArcFaceConfig.getInstance().getFaceImagesPath() +"/" + user.getImageName());
+    }
   }
 
   private static class HolderClass {
@@ -89,6 +95,14 @@ public class DataBaseManager {
       return userList.get(0);
     }
     return null;
+  }
+
+  public User getUserByUserId(String userId) {
+    if (userId == null || userId.trim().length() == 0) {
+      return null;
+    }
+    User user = DBManager.getInstance().queryUser(userId);
+    return user;
   }
 
   private void initPush(DataBaseListener listener) {

@@ -14,6 +14,7 @@ import com.aialphay.android.rk3568.arcface.engine.ArcFaceEngine;
 import com.aialphay.android.rk3568.arcface.manager.DataBaseManager;
 import com.aialphay.android.rk3568.iccard.ICCardReadService;
 import com.aialphay.android.rk3568.iccard.callback.ICCardReadCallback;
+import com.aialphay.android.rk3568.utils.FileUtils;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.callback.Rk3568UvcCameraCallback;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.search.SearchUVCCamaraFragment;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.utils.ArcFaceUtils;
@@ -75,7 +76,7 @@ public class FlutterRk3568UvccameraPlugin
     } else if (call.method.equals("clearFace")) {
       ArcFaceEngine.getInstance().userClean();
         if(ArcFaceConfig.getInstance().getFaceImagesPath() != null && ArcFaceConfig.getInstance().getFaceImagesPath().trim() != ""){
-            new File(ArcFaceConfig.getInstance().getFaceImagesPath()).deleteOnExit();
+            FileUtils.deleteDirAllContent(new File(ArcFaceConfig.getInstance().getFaceImagesPath()));
         }
       rk3568UvcCameraCallback.deleteFaceSuccess();
       result.success(true);
