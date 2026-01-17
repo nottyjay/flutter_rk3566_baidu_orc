@@ -18,6 +18,7 @@ import com.aialphay.android.rk3568.utils.FileUtils;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.callback.Rk3568UvcCameraCallback;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.search.SearchUVCCamaraFragment;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.utils.ArcFaceUtils;
+import com.baidu.idl.main.facesdk.FaceAuth;
 import com.king.wechat.qrcode.WeChatQRCodeDetector;
 
 import org.opencv.android.OpenCVLoader;
@@ -88,7 +89,10 @@ public class FlutterRk3568UvccameraPlugin
       // 同时打开摄像头进行人脸识别、二维码识别、IC 卡读卡
       runReadListener();
       result.success(true);
-    } else {
+    }  else if (call.method.equals("getDeviceId")) {
+        // 获取设备指纹
+        result.success(ArcFaceEngine.getInstance().getDeviceId());
+    }else {
       result.notImplemented();
     }
   }
