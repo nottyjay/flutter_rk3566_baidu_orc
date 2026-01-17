@@ -28,6 +28,10 @@ public class DataBaseManager {
     DBManager.getInstance().clearTable();
   }
 
+  public boolean isPush() {
+    return isPush;
+  }
+
   public void setPush(boolean b) {
     this.isPush = b;
   }

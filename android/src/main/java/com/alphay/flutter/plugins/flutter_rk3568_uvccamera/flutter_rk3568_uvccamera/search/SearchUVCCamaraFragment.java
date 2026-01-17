@@ -30,6 +30,7 @@ import com.aialphay.android.rk3568.arcface.bean.User;
 import com.aialphay.android.rk3568.arcface.callback.FaceDetectCallBack;
 import com.aialphay.android.rk3568.arcface.config.ArcFaceConfig;
 import com.aialphay.android.rk3568.arcface.engine.ArcFaceEngine;
+import com.aialphay.android.rk3568.arcface.manager.DataBaseManager;
 import com.aialphay.android.rk3568.iccard.ICCardReadService;
 import com.aialphay.android.rk3568.qrcode.QrCodeParser;
 import com.aialphay.android.rk3568.utils.BitmapUtils;
@@ -135,7 +136,7 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
   }
 
   private void onFaceCheck(Bitmap rgbData, Bitmap nirData) {
-    if (ArcFaceConstants.canDetect) {
+    if (DataBaseManager.getInstance().isPush()) {
       ArcFaceEngine.getInstance()
           .searchPerson(
               rgbData,

@@ -65,6 +65,7 @@ public class ArcFaceUtils {
             ModelManager.getInstance()
                 .getFaceFeature()
                 .featurePush(DataBaseManager.getInstance().getAllUserList());
+            ArcFaceEngine.getInstance().setPush(true);
           }
           callback.addFaceSuccess();
         } else {

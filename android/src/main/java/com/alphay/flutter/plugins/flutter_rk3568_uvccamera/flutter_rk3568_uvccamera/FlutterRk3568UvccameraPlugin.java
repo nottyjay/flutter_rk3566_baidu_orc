@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.aialphay.android.rk3568.arcface.ArcFaceConstants;
 import com.aialphay.android.rk3568.arcface.callback.ArcFaceEngineCallback;
+import com.aialphay.android.rk3568.arcface.config.ArcFaceConfig;
 import com.aialphay.android.rk3568.arcface.engine.ArcFaceEngine;
 import com.aialphay.android.rk3568.arcface.manager.DataBaseManager;
 import com.aialphay.android.rk3568.iccard.ICCardReadService;
@@ -20,6 +21,7 @@ import com.king.wechat.qrcode.WeChatQRCodeDetector;
 
 import org.opencv.android.OpenCVLoader;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -68,11 +70,13 @@ public class FlutterRk3568UvccameraPlugin
     } else if (call.method.equals("deleteFace")) {
       String id = call.argument("id");
       DataBaseManager.getInstance().deleteFace(id);
-      ArcFaceEngine.getInstance().userClean();
       rk3568UvcCameraCallback.deleteFaceSuccess();
       result.success(true);
     } else if (call.method.equals("clearFace")) {
       ArcFaceEngine.getInstance().userClean();
+        if(ArcFaceConfig.getInstance().getFaceImagesPath() != null && ArcFaceConfig.getInstance().getFaceImagesPath().trim() != ""){
+            new File(ArcFaceConfig.getInstance().getFaceImagesPath()).deleteOnExit();
+        }
       rk3568UvcCameraCallback.deleteFaceSuccess();
       result.success(true);
     } else if (call.method.equals("addFaces")) {
@@ -144,7 +148,6 @@ public class FlutterRk3568UvccameraPlugin
                     .runOnUiThread(
                         () -> {
                           channel.invokeMethod("initFullUsersSuccess", null);
-                          ArcFaceConstants.canDetect = true;
                         });
               }
 
