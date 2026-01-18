@@ -27,15 +27,7 @@ public class ICCardReadService {
 
   public void initICCardReadService(Context context) {
     usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
-    Iterator<UsbDevice> deviceList = usbManager.getDeviceList().values().iterator();
-    while (deviceList.hasNext()) {
-      UsbDevice device = deviceList.next();
-      if (!ReaderAndroidUsb.isSupported(device)) {
-        continue;
-      }
-      targetDevice = device;
-      break; // 找到第一个支持的设备即可
-    }
+
   }
 
   public void startReadICCardID(final ICCardReadCallback callback) {
@@ -45,6 +37,16 @@ public class ICCardReadService {
               new Runnable() {
                 @Override
                 public void run() {
+                  targetDevice = null;
+                  Iterator<UsbDevice> deviceList = usbManager.getDeviceList().values().iterator();
+                  while (deviceList.hasNext()) {
+                    UsbDevice device = deviceList.next();
+                    if (!ReaderAndroidUsb.isSupported(device)) {
+                      continue;
+                    }
+                    targetDevice = device;
+                    break; // 找到第一个支持的设备即可
+                  }
                   ReaderAndroidUsb localReader = null;
                   try {
                     // 在读卡操作开始时构建读卡通道
@@ -92,9 +94,9 @@ public class ICCardReadService {
   }
 
   private boolean checkDevice() {
-    if (targetDevice == null) {
-      return false;
-    }
+//    if (targetDevice == null) {
+//      return false;
+//    }
     if (ArcFaceConstants.icCardFuture != null && !ArcFaceConstants.icCardFuture.isDone()) {
       ICCardReadService.getInstance().setFinished(true);
       ArcFaceConstants.icCardFuture.cancel(true);

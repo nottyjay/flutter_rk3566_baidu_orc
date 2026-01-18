@@ -297,4 +297,27 @@ public class FileUtils {
     }
     return file;
   }
+
+  public static void deleteDirAllContent(File dir) {
+    // 1. 判断是否是文件夹，且文件夹存在
+    if (dir.exists() && dir.isDirectory()) {
+      // 2. 获取文件夹下的所有子文件/子文件夹
+      File[] files = dir.listFiles();
+      if (files != null) {
+        for (File file : files) {
+          if (file.isFile()) {
+            // 3. 如果是文件：立即删除
+            file.delete();
+            System.out.println("删除文件：" + file.getAbsolutePath());
+          } else {
+            // 4. 如果是文件夹：递归删除它的所有内容
+            deleteDirAllContent(file);
+            // 5. 子文件夹清空后，立即删除该空的子文件夹
+            file.delete();
+            System.out.println("删除空文件夹：" + file.getAbsolutePath());
+          }
+        }
+      }
+    }
+  }
 }

@@ -9,17 +9,21 @@ import androidx.fragment.app.FragmentManager;
 
 import com.aialphay.android.rk3568.arcface.ArcFaceConstants;
 import com.aialphay.android.rk3568.arcface.callback.ArcFaceEngineCallback;
+import com.aialphay.android.rk3568.arcface.config.ArcFaceConfig;
 import com.aialphay.android.rk3568.arcface.engine.ArcFaceEngine;
 import com.aialphay.android.rk3568.arcface.manager.DataBaseManager;
 import com.aialphay.android.rk3568.iccard.ICCardReadService;
 import com.aialphay.android.rk3568.iccard.callback.ICCardReadCallback;
+import com.aialphay.android.rk3568.utils.FileUtils;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.callback.Rk3568UvcCameraCallback;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.search.SearchUVCCamaraFragment;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.utils.ArcFaceUtils;
+import com.baidu.idl.main.facesdk.FaceAuth;
 import com.king.wechat.qrcode.WeChatQRCodeDetector;
 
 import org.opencv.android.OpenCVLoader;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -68,11 +72,13 @@ public class FlutterRk3568UvccameraPlugin
     } else if (call.method.equals("deleteFace")) {
       String id = call.argument("id");
       DataBaseManager.getInstance().deleteFace(id);
-      ArcFaceEngine.getInstance().userClean();
       rk3568UvcCameraCallback.deleteFaceSuccess();
       result.success(true);
     } else if (call.method.equals("clearFace")) {
       ArcFaceEngine.getInstance().userClean();
+        if(ArcFaceConfig.getInstance().getFaceImagesPath() != null && ArcFaceConfig.getInstance().getFaceImagesPath().trim() != ""){
+            FileUtils.deleteDirAllContent(new File(ArcFaceConfig.getInstance().getFaceImagesPath()));
+        }
       rk3568UvcCameraCallback.deleteFaceSuccess();
       result.success(true);
     } else if (call.method.equals("addFaces")) {
@@ -83,7 +89,10 @@ public class FlutterRk3568UvccameraPlugin
       // 同时打开摄像头进行人脸识别、二维码识别、IC 卡读卡
       runReadListener();
       result.success(true);
-    } else {
+    }  else if (call.method.equals("getDeviceId")) {
+        // 获取设备指纹
+        result.success(ArcFaceEngine.getInstance().getDeviceId());
+    }else {
       result.notImplemented();
     }
   }
@@ -144,7 +153,6 @@ public class FlutterRk3568UvccameraPlugin
                     .runOnUiThread(
                         () -> {
                           channel.invokeMethod("initFullUsersSuccess", null);
-                          ArcFaceConstants.canDetect = true;
                         });
               }
 

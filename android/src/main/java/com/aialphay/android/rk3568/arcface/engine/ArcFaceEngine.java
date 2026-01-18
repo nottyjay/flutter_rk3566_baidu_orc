@@ -286,24 +286,11 @@ public class ArcFaceEngine {
             new Runnable() {
               @Override
               public void run() {
-                // 拷贝一份rgbData，irData，depthData, 用于多线程处理
-                Bitmap rgbDataCopy = null, irDataCopy = null, depthDataCopy = null;
-                rgbDataCopy = rgbData.copy(rgbData.getConfig(), true);
-                rgbData.recycle();
-                if (irData != null && !irData.isRecycled()) {
-                  irDataCopy = irData.copy(irData.getConfig(), true);
-                  irData.recycle();
-                }
-                if (depthData != null && !depthData.isRecycled()) {
-                  depthDataCopy = depthData.copy(depthData.getConfig(), true);
-                  depthData.recycle();
-                }
-
                 // 创建检测结果存储数据
                 LivenessModel livenessModel = new LivenessModel();
                 // 创建检测对象，如果原始数据为 YUV，转换算法为检测的图片 BGR
                 BDFaceImageInstance rgbInstance;
-                rgbInstance = new BDFaceImageInstance(rgbDataCopy);
+                rgbInstance = new BDFaceImageInstance(rgbData);
 
                 // 获取送检图片
                 livenessModel.setBdFaceImageInstance(rgbInstance.getImage());
@@ -340,8 +327,8 @@ public class ArcFaceEngine {
                   // 活体检测
                   onLivenessCheck(
                       rgbInstance,
-                      irDataCopy,
-                      depthDataCopy,
+                      irData,
+                      depthData,
                       width,
                       height,
                       livenessModel.getLandmarks(),

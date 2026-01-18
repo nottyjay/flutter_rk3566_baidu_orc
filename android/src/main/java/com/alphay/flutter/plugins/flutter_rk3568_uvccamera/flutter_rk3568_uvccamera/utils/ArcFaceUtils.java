@@ -45,16 +45,16 @@ public class ArcFaceUtils {
     }
     if (ret == 256) {
       String[] users = username.split("_");
-      if (users.length == 3) {
-        User user = DataBaseManager.getInstance().getUserById(Integer.parseInt(users[1]));
+      if (users.length == 2) {
+        User user = DataBaseManager.getInstance().getUserByUserId(users[0]);
         if (user != null) {
-          DataBaseManager.getInstance().deleteFace(users[1]);
+          DataBaseManager.getInstance().deleteFace(users[0]);
           FileUtils.deleteFile(faceFileSuccess.getAbsolutePath() + "/" + username + ".jpg");
         }
         boolean importDBSuccess =
             ArcFaceEngine.getInstance()
                 .registerUserIntoDBmanager(
-                    DBManager.GROUP_ID, users[1], users[2], picName, null, bytes);
+                    DBManager.GROUP_ID, users[0], users[1], picName, null, bytes);
         if (importDBSuccess) {
           if (faceFileSuccess != null) {
             FileUtils.copyFile(
@@ -65,6 +65,7 @@ public class ArcFaceUtils {
             ModelManager.getInstance()
                 .getFaceFeature()
                 .featurePush(DataBaseManager.getInstance().getAllUserList());
+            ArcFaceEngine.getInstance().setPush(true);
           }
           callback.addFaceSuccess();
         } else {
@@ -123,11 +124,11 @@ public class ArcFaceUtils {
                 count.incrementAndGet();
                 if (ret == 256) {
                   String[] users = username.split("_");
-                  if (users.length == 3) {
+                  if (users.length == 2) {
                     boolean importDBSuccess =
                         ArcFaceEngine.getInstance()
                             .registerUserIntoDBmanager(
-                                DBManager.GROUP_ID, users[1], users[2], picName, null, bytes);
+                                DBManager.GROUP_ID, users[0], users[1], picName, null, bytes);
                     if (faceFileSuccess != null) {
                       FileUtils.copyFile(
                           file.getAbsolutePath(),

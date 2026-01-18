@@ -30,6 +30,7 @@ import com.aialphay.android.rk3568.arcface.bean.User;
 import com.aialphay.android.rk3568.arcface.callback.FaceDetectCallBack;
 import com.aialphay.android.rk3568.arcface.config.ArcFaceConfig;
 import com.aialphay.android.rk3568.arcface.engine.ArcFaceEngine;
+import com.aialphay.android.rk3568.arcface.manager.DataBaseManager;
 import com.aialphay.android.rk3568.iccard.ICCardReadService;
 import com.aialphay.android.rk3568.qrcode.QrCodeParser;
 import com.aialphay.android.rk3568.utils.BitmapUtils;
@@ -106,8 +107,10 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
                 new Runnable() {
                   @Override
                   public void run() {
-                    List<String> contents = WeChatQRCodeDetector.detectAndDecode(bitmap);
+                      Bitmap qrCodeBitmap = rgbBitmap.copy(rgbBitmap.getConfig(), true);
+                    List<String> contents = WeChatQRCodeDetector.detectAndDecode(qrCodeBitmap);
                     if (contents != null && contents.size() > 0) {
+                        qrCodeBitmap.recycle();
                       if (irBitmap != null && !irBitmap.isRecycled()) {
                         irBitmap.recycle();
                       }
@@ -135,32 +138,55 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
   }
 
   private void onFaceCheck(Bitmap rgbData, Bitmap nirData) {
-    if (ArcFaceConstants.canDetect) {
-      ArcFaceEngine.getInstance()
-          .searchPerson(
-              rgbData,
-              nirData,
-              null,
-              ArcFaceConfig.getInstance().getRgbAndNirWidth(),
-              ArcFaceConfig.getInstance().getRgbAndNirHeight(),
-              2,
-              new FaceDetectCallBack() {
+    if (DataBaseManager.getInstance().isPush()) {
+      if (rgbData != null && !rgbData.isRecycled() && nirData != null && !nirData.isRecycled()) {
+          Bitmap rgbCopy = rgbData.copy(rgbData.getConfig(), true);
+          Bitmap nirCopy = nirData.copy(nirData.getConfig(), true);
+          ArcFaceEngine.getInstance()
+                  .searchPerson(
+                          rgbCopy,
+                          nirCopy,
+                          null,
+                          ArcFaceConfig.getInstance().getRgbAndNirWidth(),
+                          ArcFaceConfig.getInstance().getRgbAndNirHeight(),
+                          2,
+                          new FaceDetectCallBack() {
 
-                @Override
-                public void onFaceDetectCallback(LivenessModel livenessModel) {
-                  checkResult(livenessModel);
-                }
+                              @Override
+                              public void onFaceDetectCallback(LivenessModel livenessModel) {
+                                  if(rgbCopy != null & !rgbCopy.isRecycled()) {
+                                      rgbCopy.recycle();
+                                  }
+                                  if(nirCopy != null & !nirCopy.isRecycled()) {
+                                      nirCopy.recycle();
+                                  }
 
-                @Override
-                public void onTip(int code, String msg) {
-                  searchTipsTextView.setText(msg);
-                }
+                                  checkResult(livenessModel);
+                              }
 
-                @Override
-                public void onFaceDetectDarwCallback(LivenessModel livenessModel) {
-                  //                  showFrame(livenessModel);
-                }
-              });
+                              @Override
+                              public void onTip(int code, String msg) {
+                                  if(rgbCopy != null & !rgbCopy.isRecycled()) {
+                                      rgbCopy.recycle();
+                                  }
+                                  if(nirCopy != null & !nirCopy.isRecycled()) {
+                                      nirCopy.recycle();
+                                  }
+                                  searchTipsTextView.setText(msg);
+                              }
+
+                              @Override
+                              public void onFaceDetectDarwCallback(LivenessModel livenessModel) {
+                                  //                  showFrame(livenessModel);
+                                  if(rgbCopy != null & !rgbCopy.isRecycled()) {
+                                      rgbCopy.recycle();
+                                  }
+                                  if(nirCopy != null & !nirCopy.isRecycled()) {
+                                      nirCopy.recycle();
+                                  }
+                              }
+                          });
+      }
     }
   }
 
