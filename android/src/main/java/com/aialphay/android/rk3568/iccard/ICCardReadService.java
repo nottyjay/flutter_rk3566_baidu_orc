@@ -94,9 +94,9 @@ public class ICCardReadService {
   }
 
   private boolean checkDevice() {
-    if (targetDevice == null) {
-      return false;
-    }
+//    if (targetDevice == null) {
+//      return false;
+//    }
     if (ArcFaceConstants.icCardFuture != null && !ArcFaceConstants.icCardFuture.isDone()) {
       ICCardReadService.getInstance().setFinished(true);
       ArcFaceConstants.icCardFuture.cancel(true);
