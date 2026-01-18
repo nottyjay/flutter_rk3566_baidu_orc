@@ -19,7 +19,9 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
 import androidx.fragment.app.FragmentActivity;
+
 import com.ai.face.base.utils.BrightnessUtil;
 import com.ai.face.faceSearch.search.FaceSearchEngine;
 
@@ -61,6 +63,7 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
   private Bitmap rgbBitmap;
   private boolean irReady = false;
   private boolean rgbReady = false;
+  private boolean isFindQR = false;
   private Rk3568UvcCameraCallback callback;
 
   public SearchUVCCamaraFragment(FragmentActivity activity, Rk3568UvcCameraCallback callback) {
@@ -101,35 +104,38 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
       irReady = true;
     } else if (type.equals(FaceVerifyUtils.BitmapType.RGB)) {
       rgbBitmap = bitmap;
-      if (ArcFaceConstants.qrCodeFuture == null || ArcFaceConstants.qrCodeFuture.isDone()) {
-        ArcFaceConstants.qrCodeFuture =
-            ArcFaceConstants.qrCodeExecutorService.submit(
-                new Runnable() {
-                  @Override
-                  public void run() {
-                      Bitmap qrCodeBitmap = rgbBitmap.copy(rgbBitmap.getConfig(), true);
-                    List<String> contents = WeChatQRCodeDetector.detectAndDecode(qrCodeBitmap);
-                    if (contents != null && contents.size() > 0) {
-                        qrCodeBitmap.recycle();
-                      if (irBitmap != null && !irBitmap.isRecycled()) {
-                        irBitmap.recycle();
-                      }
-                      if (rgbBitmap != null && !rgbBitmap.isRecycled()) {
-                        rgbBitmap.recycle();
-                      }
-                      irReady = false;
-                      rgbReady = false;
-                      if (callback != null) {
-                        callback.findQrCodeSuccess(contents.get(0));
-                      }
-                    }
-                  }
-                });
-      }
       rgbReady = true;
+      Bitmap qrCodeBitmap = rgbBitmap.copy(rgbBitmap.getConfig(), true);
+      List<String> contents = WeChatQRCodeDetector.detectAndDecode(qrCodeBitmap);
+      qrCodeBitmap.recycle();
+      if (contents != null && contents.size() > 0) {
+        isFindQR = true;
+        if (callback != null) {
+          callback.findQrCodeSuccess(contents.get(0));
+        }
+        dismissAllowingStateLoss();
+      }
+//      if (ArcFaceConstants.qrCodeFuture == null || ArcFaceConstants.qrCodeFuture.isDone()) {
+//        ArcFaceConstants.qrCodeFuture =
+//            ArcFaceConstants.qrCodeExecutorService.submit(
+//                new Runnable() {
+//                  @Override
+//                  public void run() {
+//                    Bitmap qrCodeBitmap = rgbBitmap.copy(rgbBitmap.getConfig(), true);
+//                    List<String> contents = WeChatQRCodeDetector.detectAndDecode(qrCodeBitmap);
+//                    qrCodeBitmap.recycle();
+//                    if (contents != null && contents.size() > 0) {
+//                      if (callback != null) {
+//                        callback.findQrCodeSuccess(contents.get(0));
+//                        dismissAllowingStateLoss();
+//                      }
+//                    }
+//                  }
+//                });
+//      }
     }
 
-    if (irReady && rgbReady) {
+    if (irReady && rgbReady && !isFindQR) {
       // 送数据进入SDK
       onFaceCheck(rgbBitmap, irBitmap);
       irReady = false;
@@ -140,52 +146,52 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
   private void onFaceCheck(Bitmap rgbData, Bitmap nirData) {
     if (DataBaseManager.getInstance().isPush()) {
       if (rgbData != null && !rgbData.isRecycled() && nirData != null && !nirData.isRecycled()) {
-          Bitmap rgbCopy = rgbData.copy(rgbData.getConfig(), true);
-          Bitmap nirCopy = nirData.copy(nirData.getConfig(), true);
-          ArcFaceEngine.getInstance()
-                  .searchPerson(
-                          rgbCopy,
-                          nirCopy,
-                          null,
-                          ArcFaceConfig.getInstance().getRgbAndNirWidth(),
-                          ArcFaceConfig.getInstance().getRgbAndNirHeight(),
-                          2,
-                          new FaceDetectCallBack() {
+        Bitmap rgbCopy = rgbData.copy(rgbData.getConfig(), true);
+        Bitmap nirCopy = nirData.copy(nirData.getConfig(), true);
+        ArcFaceEngine.getInstance()
+            .searchPerson(
+                rgbCopy,
+                nirCopy,
+                null,
+                ArcFaceConfig.getInstance().getRgbAndNirWidth(),
+                ArcFaceConfig.getInstance().getRgbAndNirHeight(),
+                2,
+                new FaceDetectCallBack() {
 
-                              @Override
-                              public void onFaceDetectCallback(LivenessModel livenessModel) {
-                                  if(rgbCopy != null & !rgbCopy.isRecycled()) {
-                                      rgbCopy.recycle();
-                                  }
-                                  if(nirCopy != null & !nirCopy.isRecycled()) {
-                                      nirCopy.recycle();
-                                  }
+                  @Override
+                  public void onFaceDetectCallback(LivenessModel livenessModel) {
+                    if (rgbCopy != null & !rgbCopy.isRecycled()) {
+                      rgbCopy.recycle();
+                    }
+                    if (nirCopy != null & !nirCopy.isRecycled()) {
+                      nirCopy.recycle();
+                    }
 
-                                  checkResult(livenessModel);
-                              }
+                    checkResult(livenessModel);
+                  }
 
-                              @Override
-                              public void onTip(int code, String msg) {
-                                  if(rgbCopy != null & !rgbCopy.isRecycled()) {
-                                      rgbCopy.recycle();
-                                  }
-                                  if(nirCopy != null & !nirCopy.isRecycled()) {
-                                      nirCopy.recycle();
-                                  }
-                                  searchTipsTextView.setText(msg);
-                              }
+                  @Override
+                  public void onTip(int code, String msg) {
+                    if (rgbCopy != null & !rgbCopy.isRecycled()) {
+                      rgbCopy.recycle();
+                    }
+                    if (nirCopy != null & !nirCopy.isRecycled()) {
+                      nirCopy.recycle();
+                    }
+                    searchTipsTextView.setText(msg);
+                  }
 
-                              @Override
-                              public void onFaceDetectDarwCallback(LivenessModel livenessModel) {
-                                  //                  showFrame(livenessModel);
-                                  if(rgbCopy != null & !rgbCopy.isRecycled()) {
-                                      rgbCopy.recycle();
-                                  }
-                                  if(nirCopy != null & !nirCopy.isRecycled()) {
-                                      nirCopy.recycle();
-                                  }
-                              }
-                          });
+                  @Override
+                  public void onFaceDetectDarwCallback(LivenessModel livenessModel) {
+                    //                  showFrame(livenessModel);
+                    if (rgbCopy != null & !rgbCopy.isRecycled()) {
+                      rgbCopy.recycle();
+                    }
+                    if (nirCopy != null & !nirCopy.isRecycled()) {
+                      nirCopy.recycle();
+                    }
+                  }
+                });
       }
     }
   }
@@ -202,9 +208,9 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
             if (!livenessModel.isQualityCheck()) {
               searchTipsTextView.setText("请正视摄像头或将二维码置于摄像头前 30cm 处");
             } else if (livenessModel.getRgbLivenessScore()
-                    < ArcFaceConfig.getInstance().getRgbLiveScore()
+                < ArcFaceConfig.getInstance().getRgbLiveScore()
                 || livenessModel.getIrLivenessScore()
-                    < ArcFaceConfig.getInstance().getNirLiveScore()) {
+                < ArcFaceConfig.getInstance().getNirLiveScore()) {
               searchTipsTextView.setText("请正视摄像头或将二维码置于摄像头前 30cm 处");
             } else if (livenessModel.getUsers() == null || livenessModel.getUsers().isEmpty()) {
               searchTipsTextView.setText("请正视摄像头或将二维码置于摄像头前 30cm 处");
@@ -248,8 +254,8 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
   public void onDestroyView() {
     Log.d(TAG, "销毁 View，SearchUVCCamaraFragment");
     super.onDestroyView();
+    ICCardReadService.getInstance().setFinished(true);
     if (ArcFaceConstants.icCardFuture != null && !ArcFaceConstants.icCardFuture.isDone()) {
-      ICCardReadService.getInstance().setFinished(true);
       ArcFaceConstants.icCardFuture.cancel(true);
     }
     if (ArcFaceConstants.qrCodeFuture != null && !ArcFaceConstants.qrCodeFuture.isDone()) {

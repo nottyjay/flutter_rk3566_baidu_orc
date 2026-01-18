@@ -27,76 +27,66 @@ public class ICCardReadService {
 
   public void initICCardReadService(Context context) {
     usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
-
+    targetDevice = null;
+    Iterator<UsbDevice> deviceList = usbManager.getDeviceList().values().iterator();
+    while (deviceList.hasNext()) {
+      UsbDevice device = deviceList.next();
+      if (!ReaderAndroidUsb.isSupported(device)) {
+        continue;
+      }
+      targetDevice = device;
+      break; // 找到第一个支持的设备即可
+    }
+    reader = new ReaderAndroidUsb(usbManager);
+    int ret = reader.openReader(targetDevice);
+    if (ret < 0) {
+      isFinished = true;
+    }
   }
 
   public void startReadICCardID(final ICCardReadCallback callback) {
     if (checkDevice()) {
-      ArcFaceConstants.icCardFuture =
-          ArcFaceConstants.icCardExecutorService.submit(
-              new Runnable() {
-                @Override
-                public void run() {
-                  targetDevice = null;
-                  Iterator<UsbDevice> deviceList = usbManager.getDeviceList().values().iterator();
-                  while (deviceList.hasNext()) {
-                    UsbDevice device = deviceList.next();
-                    if (!ReaderAndroidUsb.isSupported(device)) {
-                      continue;
-                    }
-                    targetDevice = device;
-                    break; // 找到第一个支持的设备即可
-                  }
-                  ReaderAndroidUsb localReader = null;
+      new Thread(
+          new Runnable() {
+            @Override
+            public void run() {
+              try {
+                // 在读卡操作开始时构建读卡通道
+                while (!isFinished) {
+                  int cardType = -1;
                   try {
-                    // 在读卡操作开始时构建读卡通道
-                    localReader = new ReaderAndroidUsb(usbManager);
-                    int ret = localReader.openReader(targetDevice);
-                    if (ret < 0) {
-                      isFinished = true;
-                      return;
+                    cardType = reader.request(2);
+                  } catch (Exception e) {
+                    Thread.sleep(50);
+                    continue;
+                  }
+                  if (cardType >= 0) {
+                    reader.beep(1, 1, 2);
+                    String cardSerialHex = null;
+                    try {
+                      cardSerialHex = reader.openCard(1);
+                      callback.onReaCardIDSuccess(cardSerialHex);
+                    } catch (Exception e) {
+                      throw new RuntimeException(e);
                     }
-                    while (!isFinished) {
-                      int cardType = -1;
-                      try {
-                        cardType = localReader.request(2);
-                      } catch (Exception e) {
-                        Thread.sleep(50);
-                        continue;
-                      }
-                      if (cardType >= 0) {
-                        localReader.beep(1, 1, 2);
-                        String cardSerialHex = null;
-                        try {
-                          cardSerialHex = localReader.openCard(1);
-                          callback.onReaCardIDSuccess(cardSerialHex);
-                        } catch (Exception e) {
-                          throw new RuntimeException(e);
-                        }
-                        isFinished = true;
-                      } else {
-                        isFinished = true;
-                      }
-                    }
-                  } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
                     isFinished = true;
-                  } finally {
-                    // 确保每次读卡操作完成后进行清理
-                    if (localReader != null) {
-                        localReader.closeReader();
-                        localReader = null;
-                    }
+                  } else {
+                    isFinished = true;
                   }
                 }
-              });
+              } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                isFinished = true;
+              }
+            }
+          }).start();
     }
   }
 
   private boolean checkDevice() {
-//    if (targetDevice == null) {
-//      return false;
-//    }
+    if (targetDevice == null) {
+      return false;
+    }
     if (ArcFaceConstants.icCardFuture != null && !ArcFaceConstants.icCardFuture.isDone()) {
       ICCardReadService.getInstance().setFinished(true);
       ArcFaceConstants.icCardFuture.cancel(true);
