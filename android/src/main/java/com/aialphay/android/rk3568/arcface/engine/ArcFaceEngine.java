@@ -193,6 +193,17 @@ public class ArcFaceEngine {
               checkActiveLicenseResponse(i, s);
             }
           });
+    } else if (ACTIVE_LICENSE_OFFLINE.equals(ArcFaceConfig.getInstance().getActiveLicenseType())) {
+      faceAuth.initLicenseBatchLine(
+          context,
+          ArcFaceConfig.getInstance().getLicenseKey(),
+          new Callback() {
+            @Override
+            public void onResponse(int i, String s) {
+              checkActiveLicenseResponse(i, s);
+            }
+            ;
+          });
     }
   }
 
