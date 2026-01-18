@@ -5,6 +5,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.aialphay.android.rk3568.arcface.ArcFaceConstants;
 import com.aialphay.android.rk3568.iccard.callback.ICCardReadCallback;
@@ -14,6 +15,7 @@ import java.util.Iterator;
 
 public class ICCardReadService {
 
+  private static final String TAG = "ICCardReadService";
   private static final String ACTION_USB_PERMISSION = "MWCARD_USE_PERMISSION";
   private UsbDevice targetDevice;
   private UsbManager usbManager;
@@ -42,44 +44,32 @@ public class ICCardReadService {
     if (ret < 0) {
       isFinished = true;
     }
+    Log.d(TAG, "IC读卡器启动成功");
   }
 
   public void startReadICCardID(final ICCardReadCallback callback) {
     if (checkDevice()) {
       new Thread(
-          new Runnable() {
-            @Override
-            public void run() {
-              try {
-                // 在读卡操作开始时构建读卡通道
-                while (!isFinished) {
-                  int cardType = -1;
-                  try {
-                    cardType = reader.request(2);
-                  } catch (Exception e) {
-                    Thread.sleep(50);
-                    continue;
-                  }
-                  if (cardType >= 0) {
-                    reader.beep(1, 1, 2);
-                    String cardSerialHex = null;
+              new Runnable() {
+                String cardSerialHex = null;
+
+                @Override
+                public void run() {
+
+                  // 在读卡操作开始时构建读卡通道
+                  while (!isFinished) {
                     try {
                       cardSerialHex = reader.openCard(1);
+                      reader.beep(1, 1, 2);
+                      isFinished = true;
                       callback.onReaCardIDSuccess(cardSerialHex);
                     } catch (Exception e) {
-                      throw new RuntimeException(e);
+                      continue;
                     }
-                    isFinished = true;
-                  } else {
-                    isFinished = true;
                   }
                 }
-              } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                isFinished = true;
-              }
-            }
-          }).start();
+              })
+          .start();
     }
   }
 
