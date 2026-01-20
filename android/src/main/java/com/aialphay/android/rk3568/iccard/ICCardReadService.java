@@ -21,7 +21,6 @@ public class ICCardReadService {
   private UsbManager usbManager;
   private ReaderAndroidUsb reader;
   private Boolean isFinished;
-  private Handler mainHandler = new Handler(Looper.getMainLooper());
 
   public void setFinished(Boolean finished) {
     isFinished = finished;

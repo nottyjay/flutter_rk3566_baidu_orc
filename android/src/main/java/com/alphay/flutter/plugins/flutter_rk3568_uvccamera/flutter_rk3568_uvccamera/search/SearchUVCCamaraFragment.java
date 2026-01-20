@@ -63,7 +63,7 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
   private Bitmap rgbBitmap;
   private boolean irReady = false;
   private boolean rgbReady = false;
-  private boolean isFindQR = false;
+  private volatile boolean isFindQR = false;
   private boolean isDetached = false;
   private Rk3568UvcCameraCallback callback;
 
@@ -100,6 +100,7 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
 
   @Override
   void faceSearchSetBitmap(Bitmap bitmap, FaceVerifyUtils.BitmapType type) {
+    if (isFindQR) return;
     if (type.equals(FaceVerifyUtils.BitmapType.IR) && !isDetached) {
       irBitmap = bitmap;
       irReady = true;
@@ -109,7 +110,7 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
       Bitmap qrCodeBitmap = rgbBitmap.copy(rgbBitmap.getConfig(), true);
       List<String> contents = WeChatQRCodeDetector.detectAndDecode(qrCodeBitmap);
       qrCodeBitmap.recycle();
-      if (contents != null && contents.size() > 0) {
+      if (contents != null && contents.size() > 0 && !isFindQR) {
         isFindQR = true;
         if (callback != null) {
           callback.findQrCodeSuccess(contents.get(0));
@@ -208,7 +209,7 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
 
           @Override
           public void run() {
-            if (livenessModel == null) {
+            if (livenessModel == null || isFindQR) {
               return;
             }
             if (!livenessModel.isQualityCheck()) {
@@ -249,6 +250,7 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
                           })
                       .collect(Collectors.toList());
               if (callback != null) {
+                isFindQR = true;
                 callback.findPersonSuccess(userImages);
               }
             }
