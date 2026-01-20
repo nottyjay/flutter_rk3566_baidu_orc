@@ -49,7 +49,7 @@ public class ArcFaceUtils {
         User user = DataBaseManager.getInstance().getUserByUserId(users[0]);
         if (user != null) {
           DataBaseManager.getInstance().deleteFace(users[0]);
-          FileUtils.deleteFile(faceFileSuccess.getAbsolutePath() + "/" + username + ".jpg");
+          FileUtils.deleteFile(faceFileSuccess.getAbsolutePath() + "/" + user.getImageName());
         }
         boolean importDBSuccess =
             ArcFaceEngine.getInstance()
@@ -58,8 +58,7 @@ public class ArcFaceUtils {
         if (importDBSuccess) {
           if (faceFileSuccess != null) {
             FileUtils.copyFile(
-                faceImgFile.getAbsolutePath(),
-                faceFileSuccess.getAbsolutePath() + "/" + username + ".jpg");
+                faceImgFile.getAbsolutePath(), faceFileSuccess.getAbsolutePath() + "/" + picName);
           }
           synchronized (DataBaseManager.getInstance().getAllUserList()) {
             ModelManager.getInstance()
@@ -132,13 +131,12 @@ public class ArcFaceUtils {
                     if (faceFileSuccess != null) {
                       FileUtils.copyFile(
                           file.getAbsolutePath(),
-                          faceFileSuccess.getAbsolutePath() + "/" + username + ".jpg");
+                          faceFileSuccess.getAbsolutePath() + "/" + picName);
                     }
                   }
                 } else {
                   FileUtils.copyFile(
-                      file.getAbsolutePath(),
-                      faceFileFail.getAbsolutePath() + "/" + username + ".jpg");
+                      file.getAbsolutePath(), faceFileFail.getAbsolutePath() + "/" + picName);
                 }
                 callback.updateAddFaceProcess(count.get() * 100.0f / files.length);
               } finally {

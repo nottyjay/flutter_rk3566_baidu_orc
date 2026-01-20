@@ -121,7 +121,7 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
               child: const Text('清空人脸库'),
             ),
             ElevatedButton(
-              onPressed: _addFace,
+              onPressed: _onInitFaces,
               child: const Text('初始化人脸库'),
             ),
             const SizedBox(height: 8),

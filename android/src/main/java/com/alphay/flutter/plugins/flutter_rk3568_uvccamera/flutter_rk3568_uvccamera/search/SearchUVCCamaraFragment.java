@@ -63,7 +63,8 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
   private Bitmap rgbBitmap;
   private boolean irReady = false;
   private boolean rgbReady = false;
-  private boolean isFindQR = false;
+  private volatile boolean isFindQR = false;
+  private boolean isDetached = false;
   private Rk3568UvcCameraCallback callback;
 
   public SearchUVCCamaraFragment(FragmentActivity activity, Rk3568UvcCameraCallback callback) {
@@ -99,43 +100,46 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
 
   @Override
   void faceSearchSetBitmap(Bitmap bitmap, FaceVerifyUtils.BitmapType type) {
-    if (type.equals(FaceVerifyUtils.BitmapType.IR)) {
+    if (isFindQR) return;
+    if (type.equals(FaceVerifyUtils.BitmapType.IR) && !isDetached) {
       irBitmap = bitmap;
       irReady = true;
-    } else if (type.equals(FaceVerifyUtils.BitmapType.RGB)) {
+    } else if (type.equals(FaceVerifyUtils.BitmapType.RGB) && !isDetached) {
       rgbBitmap = bitmap;
       rgbReady = true;
       Bitmap qrCodeBitmap = rgbBitmap.copy(rgbBitmap.getConfig(), true);
       List<String> contents = WeChatQRCodeDetector.detectAndDecode(qrCodeBitmap);
       qrCodeBitmap.recycle();
-      if (contents != null && contents.size() > 0) {
+      if (contents != null && contents.size() > 0 && !isFindQR) {
         isFindQR = true;
         if (callback != null) {
           callback.findQrCodeSuccess(contents.get(0));
         }
         dismissAllowingStateLoss();
       }
-//      if (ArcFaceConstants.qrCodeFuture == null || ArcFaceConstants.qrCodeFuture.isDone()) {
-//        ArcFaceConstants.qrCodeFuture =
-//            ArcFaceConstants.qrCodeExecutorService.submit(
-//                new Runnable() {
-//                  @Override
-//                  public void run() {
-//                    Bitmap qrCodeBitmap = rgbBitmap.copy(rgbBitmap.getConfig(), true);
-//                    List<String> contents = WeChatQRCodeDetector.detectAndDecode(qrCodeBitmap);
-//                    qrCodeBitmap.recycle();
-//                    if (contents != null && contents.size() > 0) {
-//                      if (callback != null) {
-//                        callback.findQrCodeSuccess(contents.get(0));
-//                        dismissAllowingStateLoss();
-//                      }
-//                    }
-//                  }
-//                });
-//      }
+      //      if (ArcFaceConstants.qrCodeFuture == null || ArcFaceConstants.qrCodeFuture.isDone()) {
+      //        ArcFaceConstants.qrCodeFuture =
+      //            ArcFaceConstants.qrCodeExecutorService.submit(
+      //                new Runnable() {
+      //                  @Override
+      //                  public void run() {
+      //                    Bitmap qrCodeBitmap = rgbBitmap.copy(rgbBitmap.getConfig(), true);
+      //                    List<String> contents =
+      // WeChatQRCodeDetector.detectAndDecode(qrCodeBitmap);
+      //                    qrCodeBitmap.recycle();
+      //                    if (contents != null && contents.size() > 0) {
+      //                      if (callback != null) {
+      //                        callback.findQrCodeSuccess(contents.get(0));
+      //                        dismissAllowingStateLoss();
+      //                      }
+      //                    }
+      //                  }
+      //                });
+      //      }
     }
 
-    if (irReady && rgbReady && !isFindQR) {
+    if (irReady && rgbReady && !isFindQR && !isDetached) {
+      isDetached = true;
       // 送数据进入SDK
       onFaceCheck(rgbBitmap, irBitmap);
       irReady = false;
@@ -146,12 +150,12 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
   private void onFaceCheck(Bitmap rgbData, Bitmap nirData) {
     if (DataBaseManager.getInstance().isPush()) {
       if (rgbData != null && !rgbData.isRecycled() && nirData != null && !nirData.isRecycled()) {
-        Bitmap rgbCopy = rgbData.copy(rgbData.getConfig(), true);
-        Bitmap nirCopy = nirData.copy(nirData.getConfig(), true);
+        //        Bitmap rgbCopy = rgbData.copy(rgbData.getConfig(), true);
+        //        Bitmap nirCopy = nirData.copy(nirData.getConfig(), true);
         ArcFaceEngine.getInstance()
             .searchPerson(
-                rgbCopy,
-                nirCopy,
+                rgbData,
+                nirData,
                 null,
                 ArcFaceConfig.getInstance().getRgbAndNirWidth(),
                 ArcFaceConfig.getInstance().getRgbAndNirHeight(),
@@ -160,36 +164,39 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
 
                   @Override
                   public void onFaceDetectCallback(LivenessModel livenessModel) {
-                    if (rgbCopy != null & !rgbCopy.isRecycled()) {
-                      rgbCopy.recycle();
-                    }
-                    if (nirCopy != null & !nirCopy.isRecycled()) {
-                      nirCopy.recycle();
-                    }
+                    isDetached = false;
+                    //                    if (rgbCopy != null & !rgbCopy.isRecycled()) {
+                    //                      rgbCopy.recycle();
+                    //                    }
+                    //                    if (nirCopy != null & !nirCopy.isRecycled()) {
+                    //                      nirCopy.recycle();
+                    //                    }
 
                     checkResult(livenessModel);
                   }
 
                   @Override
                   public void onTip(int code, String msg) {
-                    if (rgbCopy != null & !rgbCopy.isRecycled()) {
-                      rgbCopy.recycle();
-                    }
-                    if (nirCopy != null & !nirCopy.isRecycled()) {
-                      nirCopy.recycle();
-                    }
+                    isDetached = false;
+                    //                    if (rgbCopy != null & !rgbCopy.isRecycled()) {
+                    //                      rgbCopy.recycle();
+                    //                    }
+                    //                    if (nirCopy != null & !nirCopy.isRecycled()) {
+                    //                      nirCopy.recycle();
+                    //                    }
                     searchTipsTextView.setText(msg);
                   }
 
                   @Override
                   public void onFaceDetectDarwCallback(LivenessModel livenessModel) {
+                    isDetached = false;
                     //                  showFrame(livenessModel);
-                    if (rgbCopy != null & !rgbCopy.isRecycled()) {
-                      rgbCopy.recycle();
-                    }
-                    if (nirCopy != null & !nirCopy.isRecycled()) {
-                      nirCopy.recycle();
-                    }
+                    //                    if (rgbCopy != null & !rgbCopy.isRecycled()) {
+                    //                      rgbCopy.recycle();
+                    //                    }
+                    //                    if (nirCopy != null & !nirCopy.isRecycled()) {
+                    //                      nirCopy.recycle();
+                    //                    }
                   }
                 });
       }
@@ -202,15 +209,15 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
 
           @Override
           public void run() {
-            if (livenessModel == null) {
+            if (livenessModel == null || isFindQR) {
               return;
             }
             if (!livenessModel.isQualityCheck()) {
               searchTipsTextView.setText("请正视摄像头或将二维码置于摄像头前 30cm 处");
             } else if (livenessModel.getRgbLivenessScore()
-                < ArcFaceConfig.getInstance().getRgbLiveScore()
+                    < ArcFaceConfig.getInstance().getRgbLiveScore()
                 || livenessModel.getIrLivenessScore()
-                < ArcFaceConfig.getInstance().getNirLiveScore()) {
+                    < ArcFaceConfig.getInstance().getNirLiveScore()) {
               searchTipsTextView.setText("请正视摄像头或将二维码置于摄像头前 30cm 处");
             } else if (livenessModel.getUsers() == null || livenessModel.getUsers().isEmpty()) {
               searchTipsTextView.setText("请正视摄像头或将二维码置于摄像头前 30cm 处");
@@ -243,6 +250,7 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
                           })
                       .collect(Collectors.toList());
               if (callback != null) {
+                isFindQR = true;
                 callback.findPersonSuccess(userImages);
               }
             }
