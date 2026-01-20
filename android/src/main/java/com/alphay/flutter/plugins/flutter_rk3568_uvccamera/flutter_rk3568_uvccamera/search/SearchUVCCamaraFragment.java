@@ -71,6 +71,7 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
     this.activity = activity;
     this.callback = callback;
     Log.d(TAG, "创建一个 View，FlutterSearchUVCCamaraFragment");
+    ArcFaceEngine.getInstance().clearFeatureMap();
   }
 
   @Override

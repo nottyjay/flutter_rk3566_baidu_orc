@@ -80,9 +80,11 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
       mirrorVideoRGB: false,
       mirrorVideoNIR: false,
       faceImagesPath: "/sdcard/faces",
-      liveScoreThreshold: 0.75,
+      liveScoreThreshold: 0.8,
       idScoreThreshold: 0.8,
       rgbAndNirScoreThreshold: 0.8,
+      licenseKey: "X7BJ-NXLG-W2H6-UKCZ",
+      activeLicenseType: "online"
     );
     await plugin.initFaceEngine(config);
     await plugin.initQrcodeEngine();
@@ -94,7 +96,7 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
       _isImporting = true;
       _importPercent = 0.0;
     });
-    await plugin.addFaces('/sdcard/face_test');
+    await plugin.addFaces('/sdcard/face');
   }
 
   Future<void> _clearFace() async {

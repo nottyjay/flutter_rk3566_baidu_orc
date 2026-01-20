@@ -78,6 +78,10 @@ public class ArcFaceEngine {
     DataBaseManager.getInstance().setPush(b);
   }
 
+  public void clearFeatureMap() {
+    mFeatureMap = new HashMap<>();
+  }
+
   public int getRegisterUserNum() {
     return DataBaseManager.getInstance().getUserCount();
   }
@@ -787,6 +791,15 @@ public class ArcFaceEngine {
             mFeatureMap.put(topFeature.getId(), scoreList);
           }
           float score = calculateFinalScore(mFeatureMap.get(topFeature.getId()));
+          User userTmp = DataBaseManager.getInstance().getUserById(topFeature.getId());
+          Log.d(
+              TAG,
+              "当前用户:"
+                  + userTmp.getUserName()
+                  + ",得分："
+                  + topFeature.getScore()
+                  + ", 矫正后得分："
+                  + score);
           if (topFeature != null && score > threholdScore) {
             User user = DataBaseManager.getInstance().getUserById(topFeature.getId());
             if (user != null) {

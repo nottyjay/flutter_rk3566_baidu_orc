@@ -37,3 +37,6 @@ openspec/
 AGENTS.md
 CHANGELOG.md
 QODER.md
+
+# FVM Version Cache
+.fvm/
