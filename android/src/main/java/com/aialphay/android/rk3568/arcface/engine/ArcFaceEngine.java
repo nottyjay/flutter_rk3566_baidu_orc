@@ -152,13 +152,12 @@ public class ArcFaceEngine {
   /**
    * 检测-活体-特征-人脸检索流程
    *
-   * @param rgbData 可见光YUV 数据流
-   * @param irData 红外YUV 数据流
-   * @param depthData 深度depth 数据流
-   * @param width 可见光YUV 数据流-宽度
-   * @param height 可见光YUV 数据流-高度
-   * @param liveCheckMode
-   *     活体检测类型【不使用活体：0】；【RGB活体：1】；【RGB+NIR活体：2】；【RGB+Depth活体：3】；【RGB+NIR+Depth活体：4】
+   * @param rgbData            可见光YUV 数据流
+   * @param irData             红外YUV 数据流
+   * @param depthData          深度depth 数据流
+   * @param width              可见光YUV 数据流-宽度
+   * @param height             可见光YUV 数据流-高度
+   * @param liveCheckMode      活体检测类型【不使用活体：0】；【RGB活体：1】；【RGB+NIR活体：2】；【RGB+Depth活体：3】；【RGB+NIR+Depth活体：4】
    * @param faceDetectCallBack
    */
   public void searchPerson(
@@ -172,7 +171,9 @@ public class ArcFaceEngine {
     detectCheck(rgbData, irData, depthData, width, height, liveCheckMode, 3, faceDetectCallBack);
   }
 
-  /** 初始化授权 */
+  /**
+   * 初始化授权
+   */
   private void initLicense() {
     if (ACTIVE_LICENSE_ONLINE.equals(ArcFaceConfig.getInstance().getActiveLicenseType())) {
       faceAuth.initLicenseOnLine(
@@ -202,6 +203,7 @@ public class ArcFaceEngine {
             public void onResponse(int i, String s) {
               checkActiveLicenseResponse(i, s);
             }
+
             ;
           });
     }
@@ -224,7 +226,9 @@ public class ArcFaceEngine {
     }
   }
 
-  /** 初始化模型 */
+  /**
+   * 初始化模型
+   */
   private void initModel() {
     if (initStatus != SDK_MODEL_LOAD_SUCCESS) { // 模型尚未初始化时，初始化模型
       ModelManager.getInstance()
@@ -256,14 +260,13 @@ public class ArcFaceEngine {
   /**
    * 检测-活体-特征-人脸检索流程
    *
-   * @param rgbData 可见光YUV 数据流
-   * @param irData 红外YUV 数据流
-   * @param depthData 深度depth 数据流
-   * @param width 可见光YUV 数据流-宽度
-   * @param height 可见光YUV 数据流-高度
-   * @param liveCheckMode
-   *     活体检测类型【不使用活体：0】；【RGB活体：1】；【RGB+NIR活体：2】；【RGB+Depth活体：3】；【RGB+NIR+Depth活体：4】
-   * @param featureCheckMode 特征抽取模式【不提取特征：1】；【提取特征：2】；【提取特征+1：N检索：3】；
+   * @param rgbData            可见光YUV 数据流
+   * @param irData             红外YUV 数据流
+   * @param depthData          深度depth 数据流
+   * @param width              可见光YUV 数据流-宽度
+   * @param height             可见光YUV 数据流-高度
+   * @param liveCheckMode      活体检测类型【不使用活体：0】；【RGB活体：1】；【RGB+NIR活体：2】；【RGB+Depth活体：3】；【RGB+NIR+Depth活体：4】
+   * @param featureCheckMode   特征抽取模式【不提取特征：1】；【提取特征：2】；【提取特征+1：N检索：3】；
    * @param faceDetectCallBack
    */
   public void detectCheck(
@@ -278,7 +281,7 @@ public class ArcFaceEngine {
     if (rgbData == null
         || rgbData.isRecycled()
         || (ArcFaceConstants.detectCheckFuture != null
-            && !ArcFaceConstants.detectCheckFuture.isDone())) {
+        && !ArcFaceConstants.detectCheckFuture.isDone())) {
       return;
     }
     ArcFaceConstants.detectCheckFuture =
@@ -352,18 +355,17 @@ public class ArcFaceEngine {
   /**
    * 活体-特征-人脸检索全流程
    *
-   * @param rgbInstance 可见光底层送检对象
-   * @param irData 红外YUV 数据流
-   * @param depthData 深度depth 数据流
-   * @param width 可见光YUV 数据流-宽度
-   * @param height 可见光YUV 数据流-高度
-   * @param landmarks 检测眼睛，嘴巴，鼻子，72个关键点
-   * @param livenessModel 检测结果数据集合
-   * @param liveCheckMode
-   *     活体检测模式【不使用活体：0】；【RGB活体：1】；【RGB+NIR活体：2】；【RGB+Depth活体：3】；【RGB+NIR+Depth活体：4】
-   * @param featureCheckMode 特征抽取模式【不提取特征：1】；【提取特征：2】；【提取特征+1：N检索：3】；
+   * @param rgbInstance        可见光底层送检对象
+   * @param irData             红外YUV 数据流
+   * @param depthData          深度depth 数据流
+   * @param width              可见光YUV 数据流-宽度
+   * @param height             可见光YUV 数据流-高度
+   * @param landmarks          检测眼睛，嘴巴，鼻子，72个关键点
+   * @param livenessModel      检测结果数据集合
+   * @param liveCheckMode      活体检测模式【不使用活体：0】；【RGB活体：1】；【RGB+NIR活体：2】；【RGB+Depth活体：3】；【RGB+NIR+Depth活体：4】
+   * @param featureCheckMode   特征抽取模式【不提取特征：1】；【提取特征：2】；【提取特征+1：N检索：3】；
    * @param faceDetectCallBack
-   * @param fastFaceInfos 人脸信息
+   * @param fastFaceInfos      人脸信息
    */
   public void onLivenessCheck(
       BDFaceImageInstance rgbInstance,
@@ -653,13 +655,13 @@ public class ArcFaceEngine {
   /**
    * 特征提取-人脸识别比对
    *
-   * @param rgbInstance 可见光底层送检对象
-   * @param landmark 检测眼睛，嘴巴，鼻子，72个关键点
-   * @param faceInfos nir人脸数据
-   * @param nirInstance nir 图像句柄
-   * @param livenessModel 检测结果数据集合
+   * @param rgbInstance      可见光底层送检对象
+   * @param landmark         检测眼睛，嘴巴，鼻子，72个关键点
+   * @param faceInfos        nir人脸数据
+   * @param nirInstance      nir 图像句柄
+   * @param livenessModel    检测结果数据集合
    * @param featureCheckMode 特征抽取模式【不提取特征：1】；【提取特征：2】；【提取特征+1：N检索：3】；
-   * @param featureType 特征抽取模态执行 【生活照：1】；【证件照：2】；【混合模态：3】；
+   * @param featureType      特征抽取模态执行 【生活照：1】；【证件照：2】；【混合模态：3】；
    */
   public void onFeatureCheck(
       final BDFaceImageInstance rgbInstance,
@@ -741,10 +743,10 @@ public class ArcFaceEngine {
    * 人脸库检索
    *
    * @param featureCheckMode 特征抽取模式【不提取特征：1】；【提取特征：2】；【提取特征+1：N检索：3】；
-   * @param livenessModel 检测结果数据集合
-   * @param feature 特征点
-   * @param featureSize 特征点的size
-   * @param type 特征提取类型
+   * @param livenessModel    检测结果数据集合
+   * @param feature          特征点
+   * @param featureSize      特征点的size
+   * @param type             特征提取类型
    */
   private void featureSearch(
       final int featureCheckMode,
@@ -773,7 +775,8 @@ public class ArcFaceEngine {
           threholdScore = ArcFaceConfig.getInstance().getRgbAndNirScoreThreshold();
         }
         for (Feature topFeature : featureResult) {
-
+          User tmpUser = DataBaseManager.getInstance().getUserById(topFeature.getId());
+          Log.d(TAG, "搜索疑似人员ID: " + tmpUser.getId() + ", 姓名：" + tmpUser.getUserName() + ", 得分：" + topFeature.getScore());
           if (topFeature != null && topFeature.getScore() > threholdScore) {
             User user = DataBaseManager.getInstance().getUserById(topFeature.getId());
             if (user != null) {
