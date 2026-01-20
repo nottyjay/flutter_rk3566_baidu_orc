@@ -141,6 +141,10 @@ class FlutterRk3568Uvccamera {
     return FlutterRk3568UvccameraPlatform.instance.runDetect();
   }
 
+  Future<String?> getDeviceId() {
+    return FlutterRk3568UvccameraPlatform.instance.getDeviceId();
+  }
+
   void setCallbacks(FlutterRk3568UvccameraCallbacks callbacks) {
     FlutterRk3568UvccameraPlatform.instance.setCallbacks(callbacks);
   }

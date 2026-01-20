@@ -1,5 +1,6 @@
 package com.aialphay.android.rk3568.arcface.engine;
 
+import static com.aialphay.android.rk3568.arcface.ArcFaceConstants.ACTIVE_LICENSE_BATCHONLINE;
 import static com.aialphay.android.rk3568.arcface.ArcFaceConstants.ACTIVE_LICENSE_OFFLINE;
 import static com.aialphay.android.rk3568.arcface.ArcFaceConstants.ACTIVE_LICENSE_ONLINE;
 import static com.aialphay.android.rk3568.arcface.ArcFaceConstants.FEATURE_SIZE;
@@ -32,6 +33,7 @@ import com.baidu.idl.main.facesdk.model.BDFaceSDKCommon;
 import com.baidu.idl.main.facesdk.model.Feature;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -54,6 +56,9 @@ public class ArcFaceEngine {
   private int mLastFaceId;
   private List<Boolean> mRgbLiveList = new ArrayList<>();
   private List<Boolean> mNirLiveList = new ArrayList<>();
+
+  private Map<Integer, List<Float>> mFeatureMap = new HashMap<>();
+
   private float mRgbLiveScore;
   private float mNirLiveScore;
 
@@ -193,7 +198,8 @@ public class ArcFaceEngine {
               checkActiveLicenseResponse(i, s);
             }
           });
-    } else if (ACTIVE_LICENSE_OFFLINE.equals(ArcFaceConfig.getInstance().getActiveLicenseType())) {
+    } else if (ACTIVE_LICENSE_BATCHONLINE.equals(
+        ArcFaceConfig.getInstance().getActiveLicenseType())) {
       faceAuth.initLicenseBatchLine(
           context,
           ArcFaceConfig.getInstance().getLicenseKey(),
@@ -773,8 +779,15 @@ public class ArcFaceEngine {
           threholdScore = ArcFaceConfig.getInstance().getRgbAndNirScoreThreshold();
         }
         for (Feature topFeature : featureResult) {
-
-          if (topFeature != null && topFeature.getScore() > threholdScore) {
+          if (mFeatureMap.containsKey(topFeature.getId())) {
+            mFeatureMap.get(topFeature.getId()).add(topFeature.getScore());
+          } else {
+            List<Float> scoreList = new ArrayList<>();
+            scoreList.add(topFeature.getScore());
+            mFeatureMap.put(topFeature.getId(), scoreList);
+          }
+          float score = calculateFinalScore(mFeatureMap.get(topFeature.getId()));
+          if (topFeature != null && score > threholdScore) {
             User user = DataBaseManager.getInstance().getUserById(topFeature.getId());
             if (user != null) {
               user.setFeatureScore(topFeature.getScore());
@@ -785,6 +798,49 @@ public class ArcFaceEngine {
         livenessModel.setUsers(users);
       }
     }
+  }
+
+  /**
+   * 计算单个用户的最终补偿得分
+   *
+   * @param scores 用户历次考试得分列表
+   * @return 最终补偿得分
+   */
+  private float calculateFinalScore(List<Float> scores) {
+    // 1. 异常处理：空列表/空指针返回0分
+    if (scores == null || scores.isEmpty()) {
+      return 0.0f;
+    }
+
+    // 2. 计算基础指标：考试次数、总分、平均分
+    int examCount = scores.size();
+    float totalScore = 0.0f;
+    for (Float score : scores) {
+      // 防御性处理：过滤null/负数得分
+      if (score != null && score >= 0) {
+        totalScore += score;
+      }
+    }
+    float averageScore = totalScore / examCount;
+
+    // 3. 精准版补偿公式计算（仅对[0.4, 0.8)区间生效）
+    float finalScore;
+    if (averageScore >= 0.4 && averageScore < 0.8) {
+      // 核心公式：S = 平均分 + (0.8 - 平均分) * (考试次数 / (-20*平均分 + 16))
+      double denominator = -20 * averageScore + 16; // 补偿次数阈值（分母）
+      // 避免分母为0的极端情况（理论上[0.4,0.8)区间分母范围7.2~8，不会为0）
+      if (denominator <= 0) {
+        finalScore = averageScore;
+      } else {
+        double compensationCoefficient = examCount / denominator; // 补偿系数
+        double compensationScore = (0.8 - averageScore) * compensationCoefficient; // 补偿分数
+        finalScore = (float) (averageScore + compensationScore);
+      }
+    } else {
+      // 非补偿区间，返回原平均分
+      finalScore = averageScore;
+    }
+    return finalScore;
   }
 
   /**

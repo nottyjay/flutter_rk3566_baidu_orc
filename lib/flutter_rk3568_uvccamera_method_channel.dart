@@ -62,6 +62,11 @@ class MethodChannelFlutterRk3568Uvccamera
   }
 
   @override
+  Future<String?> getDeviceId() {
+    return methodChannel.invokeMethod<String>('getDeviceId');
+  }
+
+  @override
   void setCallbacks(FlutterRk3568UvccameraCallbacks callbacks) {
     _callbacks = callbacks;
   }

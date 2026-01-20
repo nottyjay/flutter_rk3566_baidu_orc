@@ -82,6 +82,10 @@ abstract class FlutterRk3568UvccameraPlatform extends PlatformInterface {
     throw UnimplementedError('runDetect() has not been implemented.');
   }
 
+  Future<String?> getDeviceId() {
+    throw UnimplementedError('getDeviceId() has not been implemented.');
+  }
+
   void setCallbacks(FlutterRk3568UvccameraCallbacks callbacks) {
     throw UnimplementedError('setCallbacks() has not been implemented.');
   }

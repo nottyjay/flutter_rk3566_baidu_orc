@@ -14,7 +14,7 @@ public class ArcFaceConstants {
   // 离线激活
   public static final String ACTIVE_LICENSE_OFFLINE = "offline";
 
-  public static final String ACTIVE_LICENSE_BATCHOnLine = "batchOnline";
+  public static final String ACTIVE_LICENSE_BATCHONLINE = "batchOnline";
 
   // SDK 加载成功
   public static final int SDK_MODEL_LOAD_SUCCESS = 0;
