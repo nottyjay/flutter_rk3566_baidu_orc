@@ -87,7 +87,7 @@ public class FlutterRk3568UvccameraPlugin
       result.success(true);
     } else if (call.method.equals("runDetect")) {
       // 同时打开摄像头进行人脸识别、二维码识别、IC 卡读卡
-      runReadListener();
+//      runReadListener();
       result.success(true);
     } else if (call.method.equals("getDeviceId")) {
       // 获取设备指纹
