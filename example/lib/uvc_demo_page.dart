@@ -83,8 +83,8 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
       liveScoreThreshold: 0.8,
       idScoreThreshold: 0.8,
       rgbAndNirScoreThreshold: 0.8,
-      licenseKey: "X7BJ-NXLG-W2H6-UKCZ",
-      activeLicenseType: "online"
+      // licenseKey: "X7BJ-NXLG-W2H6-UKCZ",
+      activeLicenseType: "offline"
     );
     await plugin.initFaceEngine(config);
     await plugin.initQrcodeEngine();
@@ -101,12 +101,6 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
 
   Future<void> _clearFace() async {
     await plugin.clearFace();
-  }
-
-  Future<void> _addFace() async {
-    await plugin.addFace(
-      '/sdcard/face_test/46c2d6a597fe4114b5a77387ea318da8_14b0a3b9ed884b7a8bd47c0e903d6bd3_小崔.jpg',
-    );
   }
 
   Future<void> _onStartDetect() async {
