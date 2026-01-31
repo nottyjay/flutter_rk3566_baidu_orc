@@ -1,7 +1,6 @@
 package com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera;
 
-import android.os.Handler;
-import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
@@ -18,7 +17,6 @@ import com.aialphay.android.rk3568.utils.FileUtils;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.callback.Rk3568UvcCameraCallback;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.search.SearchUVCCamaraFragment;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.utils.ArcFaceUtils;
-import com.baidu.idl.main.facesdk.FaceAuth;
 import com.king.wechat.qrcode.WeChatQRCodeDetector;
 
 import org.opencv.android.OpenCVLoader;
@@ -37,11 +35,16 @@ import io.flutter.plugin.common.MethodChannel.Result;
 
 public class FlutterRk3568UvccameraPlugin
     implements FlutterPlugin, MethodCallHandler, ActivityAware {
+
+  private static final String TAG = "FlutterRk3568UvccameraPlugin";
+
   private MethodChannel channel;
 
   private ActivityPluginBinding activityBinding;
 
   private SearchUVCCamaraFragment fragment;
+
+  private boolean isRunDetect = false;
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -76,7 +79,8 @@ public class FlutterRk3568UvccameraPlugin
       result.success(true);
     } else if (call.method.equals("clearFace")) {
       ArcFaceEngine.getInstance().userClean();
-      if (ArcFaceConfig.getInstance().getFaceImagesPath() != null && ArcFaceConfig.getInstance().getFaceImagesPath().trim() != "") {
+      if (ArcFaceConfig.getInstance().getFaceImagesPath() != null
+          && ArcFaceConfig.getInstance().getFaceImagesPath().trim() != "") {
         FileUtils.deleteDirAllContent(new File(ArcFaceConfig.getInstance().getFaceImagesPath()));
       }
       rk3568UvcCameraCallback.deleteFaceSuccess();
@@ -87,7 +91,10 @@ public class FlutterRk3568UvccameraPlugin
       result.success(true);
     } else if (call.method.equals("runDetect")) {
       // 同时打开摄像头进行人脸识别、二维码识别、IC 卡读卡
-      runReadListener();
+      if (!isRunDetect) {
+        isRunDetect = true;
+        runReadListener();
+      }
       result.success(true);
     } else if (call.method.equals("getDeviceId")) {
       // 获取设备指纹
@@ -234,18 +241,7 @@ public class FlutterRk3568UvccameraPlugin
         @Override
         public void findQrCodeSuccess(String qrCode) {
           // 有结果，暂停其他 Future
-          if (ArcFaceConstants.detectCheckFuture != null
-              && !ArcFaceConstants.detectCheckFuture.isDone()) {
-            ArcFaceConstants.detectCheckFuture.cancel(true);
-          }
-          if (ArcFaceConstants.livenessCheckFuture != null
-              && !ArcFaceConstants.livenessCheckFuture.isDone()) {
-            ArcFaceConstants.livenessCheckFuture.cancel(true);
-          }
-          ICCardReadService.getInstance().setFinished(true);
-          if (ArcFaceConstants.icCardFuture != null && !ArcFaceConstants.icCardFuture.isDone()) {
-            ArcFaceConstants.icCardFuture.cancel(true);
-          }
+          closeAllFuture();
           activityBinding
               .getActivity()
               .runOnUiThread(
@@ -259,13 +255,7 @@ public class FlutterRk3568UvccameraPlugin
 
         @Override
         public void findPersonSuccess(List<Map<String, Object>> persons) {
-          if (ArcFaceConstants.qrCodeFuture != null && !ArcFaceConstants.qrCodeFuture.isDone()) {
-            ArcFaceConstants.qrCodeFuture.cancel(true);
-          }
-          ICCardReadService.getInstance().setFinished(true);
-          if (ArcFaceConstants.icCardFuture != null && !ArcFaceConstants.icCardFuture.isDone()) {
-            ArcFaceConstants.icCardFuture.cancel(true);
-          }
+          closeAllFuture();
           activityBinding
               .getActivity()
               .runOnUiThread(
@@ -279,17 +269,7 @@ public class FlutterRk3568UvccameraPlugin
 
         @Override
         public void readICCardIdSuccess(String cardId) {
-          if (ArcFaceConstants.detectCheckFuture != null
-              && !ArcFaceConstants.detectCheckFuture.isDone()) {
-            ArcFaceConstants.detectCheckFuture.cancel(true);
-          }
-          if (ArcFaceConstants.livenessCheckFuture != null
-              && !ArcFaceConstants.livenessCheckFuture.isDone()) {
-            ArcFaceConstants.livenessCheckFuture.cancel(true);
-          }
-          if (ArcFaceConstants.qrCodeFuture != null && !ArcFaceConstants.qrCodeFuture.isDone()) {
-            ArcFaceConstants.qrCodeFuture.cancel(true);
-          }
+          closeAllFuture();
           activityBinding
               .getActivity()
               .runOnUiThread(
@@ -300,11 +280,26 @@ public class FlutterRk3568UvccameraPlugin
                     channel.invokeMethod("readICCardIdSuccess", cardId);
                   });
         }
+
+        @Override
+        public void onDismiss() {
+          closeAllFuture();
+          activityBinding
+              .getActivity()
+              .runOnUiThread(
+                  () -> {
+                    channel.invokeMethod("onDismiss", null);
+                  });
+        }
       };
 
   @Override
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
     channel.setMethodCallHandler(null);
+    closeAllFuture();
+  }
+
+  private void closeAllFuture() {
     if (ArcFaceConstants.qrCodeFuture != null && !ArcFaceConstants.qrCodeFuture.isDone()) {
       ArcFaceConstants.qrCodeFuture.cancel(true);
     }
@@ -316,10 +311,12 @@ public class FlutterRk3568UvccameraPlugin
         && !ArcFaceConstants.livenessCheckFuture.isDone()) {
       ArcFaceConstants.livenessCheckFuture.cancel(true);
     }
+    ICCardReadService.getInstance().setFinished(true);
     if (ArcFaceConstants.icCardFuture != null && !ArcFaceConstants.icCardFuture.isDone()) {
-      ICCardReadService.getInstance().setFinished(true);
+      Log.d(TAG, "关闭读卡器");
       ArcFaceConstants.icCardFuture.cancel(true);
     }
+    isRunDetect = false;
   }
 
   @Override
@@ -328,8 +325,7 @@ public class FlutterRk3568UvccameraPlugin
   }
 
   @Override
-  public void onDetachedFromActivityForConfigChanges() {
-  }
+  public void onDetachedFromActivityForConfigChanges() {}
 
   @Override
   public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {

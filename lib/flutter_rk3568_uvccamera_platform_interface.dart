@@ -18,6 +18,7 @@ class FlutterRk3568UvccameraCallbacks {
     this.onFindQrCodeSuccess,
     this.onFindPersonSuccess,
     this.onReadICCardIdSuccess,
+    this.onDismiss,
   });
 
   final void Function()? onActiveLicenseSuccess;
@@ -33,6 +34,7 @@ class FlutterRk3568UvccameraCallbacks {
   final void Function(String qrCode)? onFindQrCodeSuccess;
   final void Function(List<FlutterRk3568UvccameraFindUser> persons)? onFindPersonSuccess;
   final void Function(String cardId)? onReadICCardIdSuccess;
+  final void Function()? onDismiss;
 }
 
 abstract class FlutterRk3568UvccameraPlatform extends PlatformInterface {

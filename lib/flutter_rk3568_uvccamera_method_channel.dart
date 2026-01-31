@@ -142,6 +142,9 @@ class MethodChannelFlutterRk3568Uvccamera
         final String cardId = call.arguments as String? ?? '';
         callbacks.onReadICCardIdSuccess?.call(cardId);
         break;
+      case 'onDismiss':
+        callbacks.onDismiss?.call();
+        break;
     }
     return null;
   }

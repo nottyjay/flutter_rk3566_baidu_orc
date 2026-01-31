@@ -81,6 +81,7 @@ public class ICCardReadService {
     }
     int ret = reader.openReader(targetDevice);
     if (ret < 0) {
+      Log.w(TAG, "IC读卡器启动失败");
       isFinished = true;
       return false;
     }

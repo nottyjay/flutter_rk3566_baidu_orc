@@ -64,6 +64,9 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
         onReadICCardIdSuccess: (cardId) {
           print("id 卡卡号：$cardId");
         },
+        onDismiss: () {
+          print("检测界面关闭");
+        },
       ),
     );
   }

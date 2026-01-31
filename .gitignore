@@ -37,7 +37,7 @@ openspec/
 AGENTS.md
 CHANGELOG.md
 QODER.md
-*/m2repository/
+**/m2repository/
 
 # FVM Version Cache
 .fvm/
