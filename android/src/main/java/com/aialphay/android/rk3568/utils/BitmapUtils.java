@@ -11,6 +11,38 @@ import java.nio.ByteBuffer;
 
 public class BitmapUtils {
 
+  /**
+   * 检测 Bitmap 是否有效
+   *
+   * @param bitmap 待检测的 Bitmap
+   * @return true=有效，false=无效
+   */
+  public static boolean isBitmapValid(Bitmap bitmap) {
+    // 1. 先判断是否为 null（最基础）
+    if (bitmap == null) {
+      return false;
+    }
+
+    // 2. 判断是否已被回收（recycle() 后 Bitmap 内部资源释放，不可再使用）
+    if (bitmap.isRecycled()) {
+      return false;
+    }
+
+    // 3. 判断宽高是否有效（宽或高为 0 的 Bitmap 无实际使用价值）
+    if (bitmap.getWidth() <= 0 || bitmap.getHeight() <= 0) {
+      return false;
+    }
+
+    // 4. 可选：额外判断是否为可变位图（如需修改 Bitmap 像素时添加，仅读取可省略）
+    // 若不需要修改 Bitmap，此判断可删除
+    // if (!bitmap.isMutable()) {
+    //     return false;
+    // }
+
+    // 所有条件满足，视为有效 Bitmap
+    return true;
+  }
+
   public static byte[] bitmap2BytesNoCompress(Bitmap bitmap) {
     if (bitmap == null || bitmap.isRecycled()) {
       return null;

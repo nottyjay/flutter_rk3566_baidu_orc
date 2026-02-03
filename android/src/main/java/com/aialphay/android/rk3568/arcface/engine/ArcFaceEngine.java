@@ -23,6 +23,7 @@ import com.aialphay.android.rk3568.arcface.db.DBManager;
 import com.aialphay.android.rk3568.arcface.manager.DataBaseManager;
 import com.aialphay.android.rk3568.arcface.manager.ModelManager;
 import com.aialphay.android.rk3568.qrcode.QrCodeParser;
+import com.aialphay.android.rk3568.utils.BitmapUtils;
 import com.baidu.idl.main.facesdk.FaceAuth;
 import com.baidu.idl.main.facesdk.FaceInfo;
 import com.baidu.idl.main.facesdk.callback.Callback;
@@ -296,6 +297,12 @@ public class ArcFaceEngine {
             new Runnable() {
               @Override
               public void run() {
+                if (!BitmapUtils.isBitmapValid(rgbData)) {
+                  faceDetectCallBack.onFaceDetectCallback(null);
+                  faceDetectCallBack.onFaceDetectDarwCallback(null);
+                  faceDetectCallBack.onTip(0, "未检测到人脸");
+                  return;
+                }
                 // 创建检测结果存储数据
                 LivenessModel livenessModel = new LivenessModel();
                 // 创建检测对象，如果原始数据为 YUV，转换算法为检测的图片 BGR
@@ -493,7 +500,7 @@ public class ArcFaceEngine {
                   float nirScore = -1;
                   FaceInfo[] faceInfosIr = null;
                   BDFaceImageInstance nirInstance = null;
-                  if (liveCheckMode == 2 || liveCheckMode == 4 && irData != null) {
+                  if (liveCheckMode == 2 || liveCheckMode == 4 && BitmapUtils.isBitmapValid(irData)) {
                     nirInstance = new BDFaceImageInstance(irData);
                     livenessModel.setBdNirFaceImageInstance(nirInstance.getImage());
 
