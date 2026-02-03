@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class DataBaseManager {
 
@@ -61,7 +62,7 @@ public class DataBaseManager {
     User user = DBManager.getInstance().queryUser(userId);
     if (user != null) {
       DBManager.getInstance().deleteUser(userId);
-      users.stream().filter(u -> u.getUserId().equals(userId)).forEach(u -> users.remove(u));
+      users.removeIf(u -> u.getUserId().equals(userId));
       FileUtils.deleteFile(
           ArcFaceConfig.getInstance().getFaceImagesPath() + "/" + user.getImageName());
     }
