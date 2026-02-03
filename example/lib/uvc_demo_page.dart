@@ -37,6 +37,9 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
         onActiveLicenseSuccess: () {
           print("人脸激活成功");
         },
+        onInitFullUsersSuccess: () {
+          print("初始化全量用户成功");
+        },
         onFindPersonSuccess: (List<FlutterRk3568UvccameraFindUser> persons) {
           for (int i = 0; i < persons.length; i++) {
             FlutterRk3568UvccameraFindUser findUser = persons[i];
@@ -87,7 +90,7 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
       idScoreThreshold: 0.8,
       rgbAndNirScoreThreshold: 0.8,
       // licenseKey: "X7BJ-NXLG-W2H6-UKCZ",
-      activeLicenseType: "offline"
+      activeLicenseType: "offline",
     );
     await plugin.initFaceEngine(config);
     await plugin.initQrcodeEngine();
