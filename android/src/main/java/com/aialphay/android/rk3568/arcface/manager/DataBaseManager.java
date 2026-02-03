@@ -59,9 +59,11 @@ public class DataBaseManager {
 
   public void deleteFace(String userId) {
     User user = DBManager.getInstance().queryUser(userId);
-    if(user != null) {
+    if (user != null) {
       DBManager.getInstance().deleteUser(userId);
-      FileUtils.deleteFile(ArcFaceConfig.getInstance().getFaceImagesPath() +"/" + user.getImageName());
+      users.stream().filter(u -> u.getUserId().equals(userId)).forEach(u -> users.remove(u));
+      FileUtils.deleteFile(
+          ArcFaceConfig.getInstance().getFaceImagesPath() + "/" + user.getImageName());
     }
   }
 
