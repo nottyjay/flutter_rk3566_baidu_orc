@@ -523,7 +523,8 @@ public class ArcFaceConfig {
     if (idScoreThreshold != 0) {
       this.idScoreThreshold = idScoreThreshold;
     }
-    float rgbAndNirScoreThreshold = ((Double) arguments.get("rgbAndNirScoreThreshold")).floatValue();
+    float rgbAndNirScoreThreshold =
+        ((Double) arguments.get("rgbAndNirScoreThreshold")).floatValue();
     if (rgbAndNirScoreThreshold != 0) {
       this.rgbAndNirScoreThreshold = rgbAndNirScoreThreshold;
     }
@@ -550,6 +551,14 @@ public class ArcFaceConfig {
     String faceImagesPath = (String) arguments.get("faceImagesPath");
     if (faceImagesPath != null) {
       this.faceImagesPath = faceImagesPath;
+    }
+    String licenseKey = (String) arguments.get("licenseKey");
+    if (licenseKey != null) {
+      this.licenseKey = licenseKey;
+    }
+    String activeLicenseType = (String) arguments.get("activeLicenseType");
+    if (activeLicenseType != null) {
+      this.activeLicenseType = activeLicenseType;
     }
   }
 

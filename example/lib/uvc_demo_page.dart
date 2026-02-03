@@ -37,11 +37,17 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
         onActiveLicenseSuccess: () {
           print("人脸激活成功");
         },
+        onInitFullUsersSuccess: () {
+          print("初始化全量用户成功");
+        },
         onFindPersonSuccess: (List<FlutterRk3568UvccameraFindUser> persons) {
-          for(int i = 0; i < persons.length; i++){
+          for (int i = 0; i < persons.length; i++) {
             FlutterRk3568UvccameraFindUser findUser = persons[i];
-            print("找到人脸：${findUser.userName}, 用户 id: ${findUser.userId}, 得分：${findUser.userScore}, 文件：${findUser.file}");
-          };
+            print(
+              "找到人脸：${findUser.userName}, 用户 id: ${findUser.userId}, 得分：${findUser.userScore}, 文件：${findUser.file}",
+            );
+          }
+          ;
         },
         onFindQrCodeSuccess: (String qrCode) {
           print("找到二维码：" + qrCode);
@@ -61,25 +67,31 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
         onReadICCardIdSuccess: (cardId) {
           print("id 卡卡号：$cardId");
         },
+        onDismiss: () {
+          print("检测界面关闭");
+        },
       ),
     );
   }
 
   Future<void> _initEngines() async {
     FlutterRk3568UvccameraConfig config = FlutterRk3568UvccameraConfig(
-      rgbCameraName: "CAM1", 
-      nirCameraName: "CAM2", 
-      nirVideoDirection: 180, 
-      rgbVideoDirection: 180, 
-      rgbAndNirWidth: 640, 
+      rgbCameraName: "CAM1",
+      nirCameraName: "CAM2",
+      nirVideoDirection: 180,
+      rgbVideoDirection: 180,
+      rgbAndNirWidth: 640,
       rgbAndNirHeight: 480,
       maxSearchNum: 2,
       mirrorVideoRGB: false,
       mirrorVideoNIR: false,
       faceImagesPath: "/sdcard/faces",
-      liveScoreThreshold: 0.75,
+      liveScoreThreshold: 0.8,
       idScoreThreshold: 0.8,
-      rgbAndNirScoreThreshold: 0.8);
+      rgbAndNirScoreThreshold: 0.8,
+      // licenseKey: "X7BJ-NXLG-W2H6-UKCZ",
+      activeLicenseType: "offline",
+    );
     await plugin.initFaceEngine(config);
     await plugin.initQrcodeEngine();
     await plugin.initICCardReader();
@@ -90,21 +102,38 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
       _isImporting = true;
       _importPercent = 0.0;
     });
-    await plugin.addFaces('/sdcard/face_test');
+    await plugin.addFaces('/sdcard/face');
   }
 
   Future<void> _clearFace() async {
     await plugin.clearFace();
-
-  }
-
-  Future<void> _addFace() async {
-    await plugin.addFace('/sdcard/face_test/46c2d6a597fe4114b5a77387ea318da8_14b0a3b9ed884b7a8bd47c0e903d6bd3_小崔.jpg');
-
   }
 
   Future<void> _onStartDetect() async {
     await plugin.runDetect();
+  }
+
+  Future<void> _getDeviceId() async {
+    final String? deviceId = await plugin.getDeviceId();
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Device ID'),
+            content: Text(deviceId ?? 'Failed to get device ID'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -116,10 +145,7 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            ElevatedButton(
-              onPressed: _clearFace,
-              child: const Text('清空人脸库'),
-            ),
+            ElevatedButton(onPressed: _clearFace, child: const Text('清空人脸库')),
             ElevatedButton(
               onPressed: _onInitFaces,
               child: const Text('初始化人脸库'),
@@ -128,6 +154,11 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
             ElevatedButton(
               onPressed: _onStartDetect,
               child: const Text('开始检测'),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: _getDeviceId,
+              child: const Text('获取设备 ID'),
             ),
             const SizedBox(height: 24),
             if (_isImporting)

@@ -62,6 +62,11 @@ class MethodChannelFlutterRk3568Uvccamera
   }
 
   @override
+  Future<String?> getDeviceId() {
+    return methodChannel.invokeMethod<String>('getDeviceId');
+  }
+
+  @override
   void setCallbacks(FlutterRk3568UvccameraCallbacks callbacks) {
     _callbacks = callbacks;
   }
@@ -136,6 +141,9 @@ class MethodChannelFlutterRk3568Uvccamera
       case 'readICCardIdSuccess':
         final String cardId = call.arguments as String? ?? '';
         callbacks.onReadICCardIdSuccess?.call(cardId);
+        break;
+      case 'onDismiss':
+        callbacks.onDismiss?.call();
         break;
     }
     return null;

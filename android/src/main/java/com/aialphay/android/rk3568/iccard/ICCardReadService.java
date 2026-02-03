@@ -29,21 +29,8 @@ public class ICCardReadService {
   public void initICCardReadService(Context context) {
     usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
     targetDevice = null;
-    Iterator<UsbDevice> deviceList = usbManager.getDeviceList().values().iterator();
-    while (deviceList.hasNext()) {
-      UsbDevice device = deviceList.next();
-      if (!ReaderAndroidUsb.isSupported(device)) {
-        continue;
-      }
-      targetDevice = device;
-      break; // 找到第一个支持的设备即可
-    }
-    reader = new ReaderAndroidUsb(usbManager);
-    int ret = reader.openReader(targetDevice);
-    if (ret < 0) {
-      isFinished = true;
-    }
-    Log.d(TAG, "IC读卡器启动成功");
+    reader = null;
+    isFinished = true;
   }
 
   public void startReadICCardID(final ICCardReadCallback callback) {
@@ -61,7 +48,11 @@ public class ICCardReadService {
                       cardSerialHex = reader.openCard(1);
                       reader.beep(1, 1, 2);
                       isFinished = true;
-                      callback.onReaCardIDSuccess(cardSerialHex);
+                      if (callback != null) {
+                        callback.onReaCardIDSuccess(cardSerialHex);
+                      }
+                      reader.closeReader();
+                      targetDevice = null;
                     } catch (Exception e) {
                       continue;
                     }
@@ -73,9 +64,28 @@ public class ICCardReadService {
   }
 
   private boolean checkDevice() {
+    targetDevice = null;
+    Iterator<UsbDevice> deviceList = usbManager.getDeviceList().values().iterator();
+    while (deviceList.hasNext()) {
+      UsbDevice device = deviceList.next();
+      if (!ReaderAndroidUsb.isSupported(device)) {
+        continue;
+      }
+      targetDevice = device;
+      break; // 找到第一个支持的设备即可
+    }
+    reader = new ReaderAndroidUsb(usbManager);
     if (targetDevice == null) {
+      Log.w(TAG, "未找到支持的IC读卡器设备");
       return false;
     }
+    int ret = reader.openReader(targetDevice);
+    if (ret < 0) {
+      Log.w(TAG, "IC读卡器启动失败");
+      isFinished = true;
+      return false;
+    }
+    Log.d(TAG, "IC读卡器启动成功");
     if (ArcFaceConstants.icCardFuture != null && !ArcFaceConstants.icCardFuture.isDone()) {
       ICCardReadService.getInstance().setFinished(true);
       ArcFaceConstants.icCardFuture.cancel(true);

@@ -20,4 +20,6 @@ public interface Rk3568UvcCameraCallback {
   void findPersonSuccess(List<Map<String, Object>> imgPaths);
 
   void readICCardIdSuccess(String cardId);
+
+  void onDismiss();
 }

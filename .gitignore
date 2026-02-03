@@ -32,7 +32,12 @@ migrate_working_dir/
 /build/
 /coverage/
 .qoder/
+.trae/
 openspec/
 AGENTS.md
 CHANGELOG.md
 QODER.md
+**/m2repository/
+
+# FVM Version Cache
+.fvm/

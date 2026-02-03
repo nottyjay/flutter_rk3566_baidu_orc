@@ -387,6 +387,7 @@ public class DBManager {
         String userName = cursor.getString(cursor.getColumnIndex("user_name"));
         long updateTime = cursor.getLong(cursor.getColumnIndex("update_time"));
         long ctime = cursor.getLong(cursor.getColumnIndex("ctime"));
+        String imageName = cursor.getString(cursor.getColumnIndex("image_name"));
 
         User user = new User();
         user.setId(dbId);
@@ -394,6 +395,7 @@ public class DBManager {
         user.setGroupId(GROUP_ID);
         user.setUserName(userName);
         user.setCtime(ctime);
+        user.setImageName(imageName);
         user.setUpdateTime(updateTime);
         return user;
       }

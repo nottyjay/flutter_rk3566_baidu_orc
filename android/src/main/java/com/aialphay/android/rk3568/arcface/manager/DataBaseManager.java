@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class DataBaseManager {
 
@@ -59,9 +60,11 @@ public class DataBaseManager {
 
   public void deleteFace(String userId) {
     User user = DBManager.getInstance().queryUser(userId);
-    if(user != null) {
+    if (user != null) {
       DBManager.getInstance().deleteUser(userId);
-      FileUtils.deleteFile(ArcFaceConfig.getInstance().getFaceImagesPath() +"/" + user.getImageName());
+      users.removeIf(u -> u.getUserId().equals(userId));
+      FileUtils.deleteFile(
+          ArcFaceConfig.getInstance().getFaceImagesPath() + "/" + user.getImageName());
     }
   }
 

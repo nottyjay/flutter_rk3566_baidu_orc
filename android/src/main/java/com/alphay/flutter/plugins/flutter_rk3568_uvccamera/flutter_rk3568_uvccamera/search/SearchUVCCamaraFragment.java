@@ -1,19 +1,5 @@
 package com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.search;
 
-import static com.ai.face.faceSearch.search.SearchProcessTipsCode.EMGINE_INITING;
-import static com.ai.face.faceSearch.search.SearchProcessTipsCode.FACE_DIR_EMPTY;
-import static com.ai.face.faceSearch.search.SearchProcessTipsCode.FACE_SIZE_FIT;
-import static com.ai.face.faceSearch.search.SearchProcessTipsCode.FACE_TOO_LARGE;
-import static com.ai.face.faceSearch.search.SearchProcessTipsCode.FACE_TOO_SMALL;
-import static com.ai.face.faceSearch.search.SearchProcessTipsCode.IR_LIVE_ERROR;
-import static com.ai.face.faceSearch.search.SearchProcessTipsCode.MASK_DETECTION;
-import static com.ai.face.faceSearch.search.SearchProcessTipsCode.NO_LIVE_FACE;
-import static com.ai.face.faceSearch.search.SearchProcessTipsCode.NO_MATCHED;
-import static com.ai.face.faceSearch.search.SearchProcessTipsCode.SEARCHING;
-import static com.ai.face.faceSearch.search.SearchProcessTipsCode.SEARCH_PREPARED;
-import static com.ai.face.faceSearch.search.SearchProcessTipsCode.THRESHOLD_ERROR;
-import static com.ai.face.faceSearch.search.SearchProcessTipsCode.TOO_MUCH_FACE;
-
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.widget.Button;
@@ -22,19 +8,12 @@ import android.widget.TextView;
 
 import androidx.fragment.app.FragmentActivity;
 
-import com.ai.face.base.utils.BrightnessUtil;
-import com.ai.face.faceSearch.search.FaceSearchEngine;
-
 import com.ai.face.faceVerify.verify.FaceVerifyUtils;
-import com.aialphay.android.rk3568.arcface.ArcFaceConstants;
 import com.aialphay.android.rk3568.arcface.bean.LivenessModel;
-import com.aialphay.android.rk3568.arcface.bean.User;
 import com.aialphay.android.rk3568.arcface.callback.FaceDetectCallBack;
 import com.aialphay.android.rk3568.arcface.config.ArcFaceConfig;
 import com.aialphay.android.rk3568.arcface.engine.ArcFaceEngine;
 import com.aialphay.android.rk3568.arcface.manager.DataBaseManager;
-import com.aialphay.android.rk3568.iccard.ICCardReadService;
-import com.aialphay.android.rk3568.qrcode.QrCodeParser;
 import com.aialphay.android.rk3568.utils.BitmapUtils;
 import com.aialphay.android.rk3568.utils.FileUtils;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.R;
@@ -45,10 +24,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
-
-import io.flutter.plugin.common.MethodChannel;
 
 public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
 
@@ -71,6 +47,7 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
     this.activity = activity;
     this.callback = callback;
     Log.d(TAG, "创建一个 View，FlutterSearchUVCCamaraFragment");
+    ArcFaceEngine.getInstance().clearFeatureMap();
   }
 
   @Override
@@ -84,7 +61,7 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
           // 关闭当前fragment
           this.dismissAllowingStateLoss();
           if (activity != null && !activity.isFinishing()) {
-            //            activity.moveTaskToBack(false);
+            // activity.moveTaskToBack(false);
           }
         });
     cancelPaymentButton.setOnClickListener(
@@ -92,10 +69,10 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
           // 取消支付按钮，效果与关闭窗口按钮相同
           this.dismissAllowingStateLoss();
           if (activity != null && !activity.isFinishing()) {
-            //            activity.moveTaskToBack(false);
+            // activity.moveTaskToBack(false);
           }
         });
-    //    BrightnessUtil.setBrightness(requireActivity(), 1.0f); // 高亮白色背景屏幕光可以当补光灯
+    // BrightnessUtil.setBrightness(requireActivity(), 1.0f); // 高亮白色背景屏幕光可以当补光灯
   }
 
   @Override
@@ -117,25 +94,6 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
         }
         dismissAllowingStateLoss();
       }
-      //      if (ArcFaceConstants.qrCodeFuture == null || ArcFaceConstants.qrCodeFuture.isDone()) {
-      //        ArcFaceConstants.qrCodeFuture =
-      //            ArcFaceConstants.qrCodeExecutorService.submit(
-      //                new Runnable() {
-      //                  @Override
-      //                  public void run() {
-      //                    Bitmap qrCodeBitmap = rgbBitmap.copy(rgbBitmap.getConfig(), true);
-      //                    List<String> contents =
-      // WeChatQRCodeDetector.detectAndDecode(qrCodeBitmap);
-      //                    qrCodeBitmap.recycle();
-      //                    if (contents != null && contents.size() > 0) {
-      //                      if (callback != null) {
-      //                        callback.findQrCodeSuccess(contents.get(0));
-      //                        dismissAllowingStateLoss();
-      //                      }
-      //                    }
-      //                  }
-      //                });
-      //      }
     }
 
     if (irReady && rgbReady && !isFindQR && !isDetached) {
@@ -150,8 +108,8 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
   private void onFaceCheck(Bitmap rgbData, Bitmap nirData) {
     if (DataBaseManager.getInstance().isPush()) {
       if (rgbData != null && !rgbData.isRecycled() && nirData != null && !nirData.isRecycled()) {
-        //        Bitmap rgbCopy = rgbData.copy(rgbData.getConfig(), true);
-        //        Bitmap nirCopy = nirData.copy(nirData.getConfig(), true);
+        // Bitmap rgbCopy = rgbData.copy(rgbData.getConfig(), true);
+        // Bitmap nirCopy = nirData.copy(nirData.getConfig(), true);
         ArcFaceEngine.getInstance()
             .searchPerson(
                 rgbData,
@@ -165,38 +123,25 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
                   @Override
                   public void onFaceDetectCallback(LivenessModel livenessModel) {
                     isDetached = false;
-                    //                    if (rgbCopy != null & !rgbCopy.isRecycled()) {
-                    //                      rgbCopy.recycle();
-                    //                    }
-                    //                    if (nirCopy != null & !nirCopy.isRecycled()) {
-                    //                      nirCopy.recycle();
-                    //                    }
-
                     checkResult(livenessModel);
                   }
 
                   @Override
                   public void onTip(int code, String msg) {
                     isDetached = false;
-                    //                    if (rgbCopy != null & !rgbCopy.isRecycled()) {
-                    //                      rgbCopy.recycle();
-                    //                    }
-                    //                    if (nirCopy != null & !nirCopy.isRecycled()) {
-                    //                      nirCopy.recycle();
-                    //                    }
                     searchTipsTextView.setText(msg);
                   }
 
                   @Override
                   public void onFaceDetectDarwCallback(LivenessModel livenessModel) {
                     isDetached = false;
-                    //                  showFrame(livenessModel);
-                    //                    if (rgbCopy != null & !rgbCopy.isRecycled()) {
-                    //                      rgbCopy.recycle();
-                    //                    }
-                    //                    if (nirCopy != null & !nirCopy.isRecycled()) {
-                    //                      nirCopy.recycle();
-                    //                    }
+                    // showFrame(livenessModel);
+                    // if (rgbCopy != null & !rgbCopy.isRecycled()) {
+                    // rgbCopy.recycle();
+                    // }
+                    // if (nirCopy != null & !nirCopy.isRecycled()) {
+                    // nirCopy.recycle();
+                    // }
                   }
                 });
       }
@@ -262,20 +207,8 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
   public void onDestroyView() {
     Log.d(TAG, "销毁 View，SearchUVCCamaraFragment");
     super.onDestroyView();
-    ICCardReadService.getInstance().setFinished(true);
-    if (ArcFaceConstants.icCardFuture != null && !ArcFaceConstants.icCardFuture.isDone()) {
-      ArcFaceConstants.icCardFuture.cancel(true);
-    }
-    if (ArcFaceConstants.qrCodeFuture != null && !ArcFaceConstants.qrCodeFuture.isDone()) {
-      ArcFaceConstants.qrCodeFuture.cancel(true);
-    }
-    if (ArcFaceConstants.livenessCheckFuture != null
-        && !ArcFaceConstants.livenessCheckFuture.isDone()) {
-      ArcFaceConstants.livenessCheckFuture.cancel(true);
-    }
-    if (ArcFaceConstants.detectCheckFuture != null
-        && !ArcFaceConstants.detectCheckFuture.isDone()) {
-      ArcFaceConstants.detectCheckFuture.cancel(true);
+    if (callback != null) {
+      callback.onDismiss();
     }
     if (irBitmap != null && !irBitmap.isRecycled()) {
       irBitmap.recycle();
