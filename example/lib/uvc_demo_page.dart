@@ -46,8 +46,12 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
             print(
               "找到人脸：${findUser.userName}, 用户 id: ${findUser.userId}, 得分：${findUser.userScore}, 文件：${findUser.file}",
             );
-          }
-          ;
+          };
+
+          // TODO 等待 1 秒后执行_onStartDetect方法
+          Timer(const Duration(seconds: 1), () {
+            _onStartDetect();
+          });
         },
         onFindQrCodeSuccess: (String qrCode) {
           print("找到二维码：" + qrCode);

@@ -297,18 +297,14 @@ public class ArcFaceEngine {
             new Runnable() {
               @Override
               public void run() {
-                if (!BitmapUtils.isBitmapValid(rgbData)) {
-                  faceDetectCallBack.onFaceDetectCallback(null);
-                  faceDetectCallBack.onFaceDetectDarwCallback(null);
-                  faceDetectCallBack.onTip(0, "未检测到人脸");
-                  return;
-                }
                 // 创建检测结果存储数据
                 LivenessModel livenessModel = new LivenessModel();
                 // 创建检测对象，如果原始数据为 YUV，转换算法为检测的图片 BGR
                 BDFaceImageInstance rgbInstance;
                 rgbInstance = new BDFaceImageInstance(rgbData);
-
+                if (!rgbData.isRecycled()) {
+                  rgbData.recycle();
+                }
                 // 获取送检图片
                 livenessModel.setBdFaceImageInstance(rgbInstance.getImage());
 
@@ -356,6 +352,15 @@ public class ArcFaceEngine {
                       faceInfos);
                 } else {
                   rgbInstance.destory();
+                  if (rgbData != null && !rgbData.isRecycled()) {
+                    rgbData.recycle();
+                  }
+                  if (irData != null && !irData.isRecycled()) {
+                    irData.recycle();
+                  }
+                  if (depthData != null && !depthData.isRecycled()) {
+                    depthData.recycle();
+                  }
                   if (faceDetectCallBack != null) {
                     faceDetectCallBack.onFaceDetectCallback(null);
                     faceDetectCallBack.onFaceDetectDarwCallback(null);
@@ -433,6 +438,12 @@ public class ArcFaceEngine {
                   }
                 } else {
                   rgbInstance.destory();
+                  if (irData != null && !irData.isRecycled()) {
+                    irData.recycle();
+                  }
+                  if (depthData != null && !depthData.isRecycled()) {
+                    depthData.recycle();
+                  }
                   if (faceDetectCallBack != null) {
                     faceDetectCallBack.onFaceDetectCallback(livenessModel);
                   }
@@ -443,6 +454,12 @@ public class ArcFaceEngine {
                 if (!onBestImageCheck(livenessModel, faceDetectCallBack)) {
                   livenessModel.setQualityCheck(false);
                   rgbInstance.destory();
+                  if (irData != null && !irData.isRecycled()) {
+                    irData.recycle();
+                  }
+                  if (depthData != null && !depthData.isRecycled()) {
+                    depthData.recycle();
+                  }
                   if (faceDetectCallBack != null) {
                     faceDetectCallBack.onFaceDetectCallback(livenessModel);
                   }
@@ -457,6 +474,12 @@ public class ArcFaceEngine {
                 if (!onQualityCheck(livenessModel, faceDetectCallBack)) {
                   livenessModel.setQualityCheck(false);
                   rgbInstance.destory();
+                  if (irData != null && !irData.isRecycled()) {
+                    irData.recycle();
+                  }
+                  if (depthData != null && !depthData.isRecycled()) {
+                    depthData.recycle();
+                  }
                   if (faceDetectCallBack != null) {
                     faceDetectCallBack.onFaceDetectCallback(livenessModel);
                   }
@@ -500,8 +523,12 @@ public class ArcFaceEngine {
                   float nirScore = -1;
                   FaceInfo[] faceInfosIr = null;
                   BDFaceImageInstance nirInstance = null;
-                  if (liveCheckMode == 2 || liveCheckMode == 4 && BitmapUtils.isBitmapValid(irData)) {
+                  if ((liveCheckMode == 2 || liveCheckMode == 4)
+                      && BitmapUtils.isBitmapValid(irData)) {
                     nirInstance = new BDFaceImageInstance(irData);
+                    if (irData != null && !irData.isRecycled()) {
+                      irData.recycle();
+                    }
                     livenessModel.setBdNirFaceImageInstance(nirInstance.getImage());
 
                     BDFaceDetectListConf bdFaceDetectListConf = new BDFaceDetectListConf();
@@ -573,8 +600,14 @@ public class ArcFaceEngine {
                         }
                       }
                       depthInstance = new BDFaceImageInstance(depthData);
+                      if (depthData != null && !depthData.isRecycled()) {
+                        depthData.recycle();
+                      }
                     } else {
                       depthInstance = new BDFaceImageInstance(depthData);
+                      if (depthData != null && !depthData.isRecycled()) {
+                        depthData.recycle();
+                      }
                     }
 
                     livenessModel.setBdDepthFaceImageInstance(depthInstance.getImage());
@@ -687,6 +720,10 @@ public class ArcFaceEngine {
       final int featureCheckMode,
       final int featureType) {
     if (featureCheckMode == 1) {
+      rgbInstance.destory();
+      if (nirInstance != null) {
+        nirInstance.destory();
+      }
       return;
     }
     byte[] feature;
@@ -751,6 +788,10 @@ public class ArcFaceEngine {
           featureSize,
           FEATURE_SIZE / 4,
           BDFaceSDKCommon.FeatureType.BDFACE_FEATURE_TYPE_LIVE_PHOTO);
+    }
+    rgbInstance.destory();
+    if (nirInstance != null) {
+      nirInstance.destory();
     }
   }
 

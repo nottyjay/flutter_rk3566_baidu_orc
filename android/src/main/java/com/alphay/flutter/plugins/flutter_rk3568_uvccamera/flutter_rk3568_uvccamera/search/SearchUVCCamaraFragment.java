@@ -76,12 +76,18 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
   }
 
   @Override
-  void faceSearchSetBitmap(Bitmap bitmap, FaceVerifyUtils.BitmapType type) {
+  synchronized void faceSearchSetBitmap(Bitmap bitmap, FaceVerifyUtils.BitmapType type) {
     if (isFindQR) return;
     if (type.equals(FaceVerifyUtils.BitmapType.IR) && !isDetached) {
+      if (irBitmap != null && !irBitmap.isRecycled()) {
+        irBitmap.recycle();
+      }
       irBitmap = bitmap;
       irReady = true;
     } else if (type.equals(FaceVerifyUtils.BitmapType.RGB) && !isDetached) {
+      if (rgbBitmap != null && !rgbBitmap.isRecycled()) {
+        rgbBitmap.recycle();
+      }
       rgbBitmap = bitmap;
       rgbReady = true;
       Bitmap qrCodeBitmap = rgbBitmap.copy(rgbBitmap.getConfig(), true);
@@ -99,7 +105,9 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
     if (irReady && rgbReady && !isFindQR && !isDetached) {
       isDetached = true;
       // 送数据进入SDK
-      onFaceCheck(rgbBitmap, irBitmap);
+      onFaceCheck(
+          rgbBitmap.copy(Bitmap.Config.ARGB_8888, false),
+          irBitmap.copy(Bitmap.Config.ARGB_8888, false));
       irReady = false;
       rgbReady = false;
     }
@@ -108,8 +116,6 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
   private void onFaceCheck(Bitmap rgbData, Bitmap nirData) {
     if (DataBaseManager.getInstance().isPush()) {
       if (rgbData != null && !rgbData.isRecycled() && nirData != null && !nirData.isRecycled()) {
-        // Bitmap rgbCopy = rgbData.copy(rgbData.getConfig(), true);
-        // Bitmap nirCopy = nirData.copy(nirData.getConfig(), true);
         ArcFaceEngine.getInstance()
             .searchPerson(
                 rgbData,
@@ -135,13 +141,6 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
                   @Override
                   public void onFaceDetectDarwCallback(LivenessModel livenessModel) {
                     isDetached = false;
-                    // showFrame(livenessModel);
-                    // if (rgbCopy != null & !rgbCopy.isRecycled()) {
-                    // rgbCopy.recycle();
-                    // }
-                    // if (nirCopy != null & !nirCopy.isRecycled()) {
-                    // nirCopy.recycle();
-                    // }
                   }
                 });
       }
@@ -216,5 +215,6 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
     if (rgbBitmap != null && !rgbBitmap.isRecycled()) {
       rgbBitmap.recycle();
     }
+    System.gc();
   }
 }

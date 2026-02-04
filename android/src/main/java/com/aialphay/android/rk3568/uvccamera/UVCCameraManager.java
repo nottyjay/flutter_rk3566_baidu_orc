@@ -214,6 +214,7 @@ public class UVCCameraManager {
                                 cameraBuilder.getDegree(),
                                 cameraBuilder.isHorizontalMirror());
                         faceAIAnalysisCallBack.onBitmapFrame(reuseBitmap);
+                        reuseBitmap = null;
                       }
                     }
                   },
