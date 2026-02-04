@@ -37,11 +37,11 @@ public class ArcFaceUtils {
     }
     String picName = faceImgFile.getName();
     String username = FileUtils.getFileNameNoEx(picName);
-    final Bitmap bitmap = BitmapFactory.decodeFile(faceImgFile.getAbsolutePath());
+    Bitmap bitmap = BitmapFactory.decodeFile(faceImgFile.getAbsolutePath());
     byte[] bytes = new byte[1024];
     float ret = ArcFaceEngine.getInstance().personDetect(bitmap, bytes);
     if (bitmap != null && !bitmap.isRecycled()) {
-      bitmap.recycle();
+      bitmap = null;
     }
     if (ret == 256) {
       String[] users = username.split("_");
@@ -114,11 +114,11 @@ public class ArcFaceUtils {
               try {
                 String picName = file.getName();
                 String username = FileUtils.getFileNameNoEx(picName);
-                final Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
                 byte[] bytes = new byte[1024];
                 float ret = ArcFaceEngine.getInstance().personDetect(bitmap, bytes);
                 if (bitmap != null && !bitmap.isRecycled()) {
-                  bitmap.recycle();
+                  bitmap = null;
                 }
                 count.incrementAndGet();
                 if (ret == 256) {
@@ -147,26 +147,26 @@ public class ArcFaceUtils {
 
       // 在单独的线程中等待所有任务完成
       new Thread(
-              () -> {
-                try {
-                  // 等待所有任务完成
-                  latch.await();
-                  synchronized (ArcFaceEngine.getInstance().getAllUserList()) {
-                    ModelManager.getInstance()
-                        .getFaceFeature()
-                        .featurePush(ArcFaceEngine.getInstance().getAllUserList());
-                    ArcFaceEngine.getInstance().setPush(true);
-                  }
-                  // 人脸导入成功回调
-                  callback.batchAddFaceSuccess();
-                } catch (InterruptedException e) {
-                  e.printStackTrace();
-                } finally {
-                  // 关闭线程池
-                  executorService.shutdown();
-                  executorService = null;
-                }
-              })
+          () -> {
+            try {
+              // 等待所有任务完成
+              latch.await();
+              synchronized (ArcFaceEngine.getInstance().getAllUserList()) {
+                ModelManager.getInstance()
+                    .getFaceFeature()
+                    .featurePush(ArcFaceEngine.getInstance().getAllUserList());
+                ArcFaceEngine.getInstance().setPush(true);
+              }
+              // 人脸导入成功回调
+              callback.batchAddFaceSuccess();
+            } catch (InterruptedException e) {
+              e.printStackTrace();
+            } finally {
+              // 关闭线程池
+              executorService.shutdown();
+              executorService = null;
+            }
+          })
           .start();
     } else {
       // 人脸导入成功回调

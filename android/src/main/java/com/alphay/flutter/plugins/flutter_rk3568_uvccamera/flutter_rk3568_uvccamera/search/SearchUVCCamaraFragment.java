@@ -159,9 +159,9 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
             if (!livenessModel.isQualityCheck()) {
               searchTipsTextView.setText("请正视摄像头或将二维码置于摄像头前 30cm 处");
             } else if (livenessModel.getRgbLivenessScore()
-                    < ArcFaceConfig.getInstance().getRgbLiveScore()
+                < ArcFaceConfig.getInstance().getRgbLiveScore()
                 || livenessModel.getIrLivenessScore()
-                    < ArcFaceConfig.getInstance().getNirLiveScore()) {
+                < ArcFaceConfig.getInstance().getNirLiveScore()) {
               searchTipsTextView.setText("请正视摄像头或将二维码置于摄像头前 30cm 处");
             } else if (livenessModel.getUsers() == null || livenessModel.getUsers().isEmpty()) {
               searchTipsTextView.setText("请正视摄像头或将二维码置于摄像头前 30cm 处");
@@ -210,10 +210,10 @@ public class SearchUVCCamaraFragment extends AbsSearchUVCCamaraFragment {
       callback.onDismiss();
     }
     if (irBitmap != null && !irBitmap.isRecycled()) {
-      irBitmap.recycle();
+      irBitmap = null;
     }
     if (rgbBitmap != null && !rgbBitmap.isRecycled()) {
-      rgbBitmap.recycle();
+      rgbBitmap = null;
     }
     System.gc();
   }
