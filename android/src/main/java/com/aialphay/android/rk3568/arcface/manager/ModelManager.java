@@ -340,7 +340,7 @@ public class ModelManager {
       config.maxDetectNum = ArcFaceConfig.getInstance().getMaxDetectNum();
       // 默认为80px。可传入大于30px的数值，小于此大小的人脸不予检测，生效时间第一次加载模型
       config.minFaceSize = ArcFaceConfig.getInstance().getMinimumFace();
-
+      config.maxDetectNum = 2;
       // 默认为0.5。可传入大于0.3的数值
       config.notRGBFaceThreshold = ArcFaceConfig.getInstance().getFaceThreshold();
       config.notNIRFaceThreshold = ArcFaceConfig.getInstance().getFaceThreshold();

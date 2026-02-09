@@ -22,7 +22,7 @@ import java.util.Locale;
 
 public class UVCCameraManager {
 
-  private static final String TAG = "FlutterUVCCameraManager";
+  private static final String TAG = "UVCCameraManager";
 
   // 配置UVC 协议摄像头默认的分辨率
   public static final int UVC_CAMERA_WIDTH = 640;
@@ -113,6 +113,7 @@ public class UVCCameraManager {
       } else if (name != null
           && name.toLowerCase(Locale.getDefault())
               .contains(cameraBuilder.getCameraKey().toLowerCase(Locale.getDefault()))) {
+        Log.d(TAG, "USB Camera name:" + name);
         isMatched = true;
         mCameraHelper.selectDevice(device);
         if (mCameraHelper.getPreviewConfig() != null) {
@@ -120,6 +121,9 @@ public class UVCCameraManager {
           if (cameraBuilder.isHorizontalMirror()) {
             mCameraHelper.getPreviewConfig().setMirror(MirrorMode.MIRROR_HORIZONTAL);
           }
+        }
+        if (mCameraHelper.getVideoCaptureConfig() != null) {
+          mCameraHelper.getVideoCaptureConfig().setAudioCaptureEnable(false);
         }
         break;
       }

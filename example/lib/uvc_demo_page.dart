@@ -12,6 +12,7 @@ class UvcDemoPage extends StatefulWidget {
 class _UvcDemoPageState extends State<UvcDemoPage> {
   double _importPercent = 0.0;
   bool _isImporting = false;
+  num _count = 0;
 
   FlutterRk3568Uvccamera get plugin => FlutterRk3568Uvccamera.instance;
 
@@ -49,7 +50,9 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
           };
 
           // TODO 等待 1 秒后执行_onStartDetect方法
-          Timer(const Duration(seconds: 1), () {
+          Timer(const Duration(seconds: 3), () {
+            _count++;
+            print("_count: " + _count.toString());
             _onStartDetect();
           });
         },

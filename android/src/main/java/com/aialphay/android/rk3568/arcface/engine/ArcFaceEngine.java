@@ -114,8 +114,8 @@ public class ArcFaceEngine {
   public float personDetect(Bitmap bitmap, byte[] feature) {
     BDFaceImageInstance rgbInstance = new BDFaceImageInstance(bitmap);
     float ret = -1;
-    //        FaceInfo[] faceInfos = FaceSDKManager.getInstance().getFaceDetect()
-    //                .detect(BDFaceSDKCommon.DetectType.DETECT_VIS, rgbInstance);
+    // FaceInfo[] faceInfos = FaceSDKManager.getInstance().getFaceDetect()
+    // .detect(BDFaceSDKCommon.DetectType.DETECT_VIS, rgbInstance);
     FaceInfo[] faceInfos =
         ModelManager.getInstance()
             .getFaceDetectPerson()
@@ -322,10 +322,34 @@ public class ArcFaceEngine {
                   FaceInfo bestFaceInfo = faceInfos[0];
                   if (faceInfos.length > 1) {
                     for (int i = 1; i < faceInfos.length; i++) {
-                      float currentArea = faceInfos[i].width * faceInfos[i].height;
-                      float bestArea = bestFaceInfo.width * bestFaceInfo.height;
-                      if (currentArea > bestArea) {
+                      // 检测到多个人脸时，获取 centerX 得分最高的一张脸，当两张脸得分一致时，判断面积最大的那张脸
+                      // centerX与 320 的绝对值小于 10 时，得分 100 分。大于 10 小于 15 时，90 分。大于 15 小于 20 时，80 分。
+                      float bestCurrentScore = 0;
+                      float bestOffset = Math.abs(bestFaceInfo.centerX - 320);
+                      if (bestOffset < 10) {
+                        bestCurrentScore = 100;
+                      } else if (bestOffset < 15) {
+                        bestCurrentScore = 90;
+                      } else if (bestOffset < 20) {
+                        bestCurrentScore = 80;
+                      }
+                      float waitCurrentScore = 0;
+                      float waitOffset = Math.abs(faceInfos[i].centerX - 320);
+                      if (waitOffset < 10) {
+                        waitCurrentScore = 100;
+                      } else if (Math.abs(waitOffset - 320) < 15) {
+                        waitCurrentScore = 90;
+                      } else if (Math.abs(waitOffset - 320) < 20) {
+                        waitCurrentScore = 80;
+                      }
+                      if (waitCurrentScore > bestCurrentScore) {
                         bestFaceInfo = faceInfos[i];
+                      } else if (waitCurrentScore == bestCurrentScore) {
+                        float currentArea = faceInfos[i].width * faceInfos[i].height;
+                        float bestArea = bestFaceInfo.width * bestFaceInfo.height;
+                        if (currentArea > bestArea) {
+                          bestFaceInfo = faceInfos[i];
+                        }
                       }
                     }
                   }
@@ -831,12 +855,14 @@ public class ArcFaceEngine {
           threholdScore = ArcFaceConfig.getInstance().getRgbAndNirScoreThreshold();
         }
         for (Feature topFeature : featureResult) {
-          if (mFeatureMap.containsKey(topFeature.getId())) {
-            mFeatureMap.get(topFeature.getId()).add(topFeature.getScore());
-          } else {
-            List<Float> scoreList = new ArrayList<>();
-            scoreList.add(topFeature.getScore());
-            mFeatureMap.put(topFeature.getId(), scoreList);
+          if (topFeature.getScore() > 0.5) {
+            if (mFeatureMap.containsKey(topFeature.getId())) {
+              mFeatureMap.get(topFeature.getId()).add(topFeature.getScore());
+            } else {
+              List<Float> scoreList = new ArrayList<>();
+              scoreList.add(topFeature.getScore());
+              mFeatureMap.put(topFeature.getId(), scoreList);
+            }
           }
           float score = calculateFinalScore(mFeatureMap.get(topFeature.getId()));
           User userTmp = DataBaseManager.getInstance().getUserById(topFeature.getId());
@@ -886,9 +912,10 @@ public class ArcFaceEngine {
 
     // 3. 精准版补偿公式计算（仅对[0.4, 0.8)区间生效）
     float finalScore;
-    if (averageScore >= 0.4 && averageScore < 0.8) {
-      // 核心公式：S = 平均分 + (0.8 - 平均分) * (考试次数 / (-20*平均分 + 16))
-      double denominator = -20 * averageScore + 16; // 补偿次数阈值（分母）
+    if (averageScore >= 0.5 && averageScore < 0.8) {
+      // 核心公式：S = 平均分 + (0.8 - 平均分) * (考试次数 / ((40 - 50 * 平均分) / 3))
+      // 当平均分为0.5时，分母为5，即5轮补偿至0.8
+      double denominator = (40.0 - 50.0 * averageScore) / 3.0;
       // 避免分母为0的极端情况（理论上[0.4,0.8)区间分母范围7.2~8，不会为0）
       if (denominator <= 0) {
         finalScore = averageScore;
@@ -938,47 +965,49 @@ public class ArcFaceEngine {
       // 模糊结果过滤
       float blur = livenessModel.getFaceInfo().bluriness;
       if (blur > ArcFaceConfig.getInstance().getBlur()) {
+        Log.e("blur", "blur = " + blur + "，图片模糊");
         faceDetectCallBack.onTip(-1, "图片模糊");
         return false;
       }
 
       // 光照结果过滤
       float illum = livenessModel.getFaceInfo().illum;
-      Log.e("illum", "illum = " + illum);
       if (illum < ArcFaceConfig.getInstance().getIllumination()) {
+        Log.e("illum", "illum = " + illum + "，光照不通过");
         faceDetectCallBack.onTip(-1, "图片光照不通过");
         return false;
       }
 
       // 遮挡结果过滤
-      if (livenessModel.getFaceInfo().occlusion != null) {
-        BDFaceOcclusion occlusion = livenessModel.getFaceInfo().occlusion;
-
-        if (occlusion.leftEye > ArcFaceConfig.getInstance().getLeftEye()) {
-          // 左眼遮挡置信度
-          faceDetectCallBack.onTip(-1, "左眼遮挡");
-        } else if (occlusion.rightEye > ArcFaceConfig.getInstance().getRightEye()) {
-          // 右眼遮挡置信度
-          faceDetectCallBack.onTip(-1, "右眼遮挡");
-        } else if (occlusion.nose > ArcFaceConfig.getInstance().getNose()) {
-          // 鼻子遮挡置信度
-          faceDetectCallBack.onTip(-1, "鼻子遮挡");
-        } else if (occlusion.mouth > ArcFaceConfig.getInstance().getMouth()) {
-          // 嘴巴遮挡置信度
-          faceDetectCallBack.onTip(-1, "嘴巴遮挡");
-        } else if (occlusion.leftCheek > ArcFaceConfig.getInstance().getLeftCheek()) {
-          // 左脸遮挡置信度
-          faceDetectCallBack.onTip(-1, "左脸遮挡");
-        } else if (occlusion.rightCheek > ArcFaceConfig.getInstance().getRightCheek()) {
-          // 右脸遮挡置信度
-          faceDetectCallBack.onTip(-1, "右脸遮挡");
-        } else if (occlusion.chin > ArcFaceConfig.getInstance().getChinContour()) {
-          // 下巴遮挡置信度
-          faceDetectCallBack.onTip(-1, "下巴遮挡");
-        } else {
-          return true;
-        }
-      }
+      //      if (livenessModel.getFaceInfo().occlusion != null) {
+      //        BDFaceOcclusion occlusion = livenessModel.getFaceInfo().occlusion;
+      //
+      //        if (occlusion.leftEye > ArcFaceConfig.getInstance().getLeftEye()) {
+      //          // 左眼遮挡置信度
+      //          faceDetectCallBack.onTip(-1, "左眼遮挡");
+      //        } else if (occlusion.rightEye > ArcFaceConfig.getInstance().getRightEye()) {
+      //          // 右眼遮挡置信度
+      //          faceDetectCallBack.onTip(-1, "右眼遮挡");
+      //        } else if (occlusion.nose > ArcFaceConfig.getInstance().getNose()) {
+      //          // 鼻子遮挡置信度
+      //          faceDetectCallBack.onTip(-1, "鼻子遮挡");
+      //        } else if (occlusion.mouth > ArcFaceConfig.getInstance().getMouth()) {
+      //          // 嘴巴遮挡置信度
+      //          faceDetectCallBack.onTip(-1, "嘴巴遮挡");
+      //        } else if (occlusion.leftCheek > ArcFaceConfig.getInstance().getLeftCheek()) {
+      //          // 左脸遮挡置信度
+      //          faceDetectCallBack.onTip(-1, "左脸遮挡");
+      //        } else if (occlusion.rightCheek > ArcFaceConfig.getInstance().getRightCheek()) {
+      //          // 右脸遮挡置信度
+      //          faceDetectCallBack.onTip(-1, "右脸遮挡");
+      //        } else if (occlusion.chin > ArcFaceConfig.getInstance().getChinContour()) {
+      //          // 下巴遮挡置信度
+      //          faceDetectCallBack.onTip(-1, "下巴遮挡");
+      //        } else {
+      //          return true;
+      //        }
+      //      }
+      return true;
     }
     return false;
   }

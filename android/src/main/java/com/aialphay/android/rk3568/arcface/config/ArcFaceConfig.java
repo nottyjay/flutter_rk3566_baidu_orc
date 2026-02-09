@@ -15,7 +15,7 @@ public class ArcFaceConfig {
   // 人脸置信度用于表征被检测到的物体是人脸的概率，该阈值设置越高检测越严格，建议在0.3-0.8区间内调整阈值
   private float faceThreshold = 0.5f;
   // 人脸模糊度
-  private float blur = 0.8f;
+  private float blur = 0.9f;
   // 默认为80px。可传入大于50px的数值，小于此大小的人脸不予检测
   private int minimumFace = 60;
   private boolean qualityControl = true;
@@ -40,7 +40,7 @@ public class ArcFaceConfig {
   // Depth活体阀值
   private float depthLiveScore = 0.80f;
   // 使用的特征抽取模型默认为生活照：1；证件照：2；RGB+NIR混合模态模型：3；
-  private int activeModel = 1;
+  private int activeModel = 3;
   // 识别阈值，0-100，默认为80分,需要选择具体模型的阈值。live：80、idcard：80
   private float liveScoreThreshold = 0.76f;
   // 识别阈值，0-100，默认为80分,需要选择具体模型的阈值。
@@ -84,10 +84,10 @@ public class ArcFaceConfig {
   // depth摄像头高
   private int depthHeight = 400;
   // 光照设置，默认0.8.取值范围[0~1], 数值越大，光线越强
-  private float illumination = 0.8f;
+  private float illumination = 0.9f;
 
   // =================== 姿态控制 ======================
-  private float pitch = 20;
+  private float pitch = 40;
   // 平面内旋转角[-180(逆时针), 180(顺时针)]，默认20
   private float roll = 20;
   // 三维旋转之左右旋转角[-90(左), 90(右)]，默认20
