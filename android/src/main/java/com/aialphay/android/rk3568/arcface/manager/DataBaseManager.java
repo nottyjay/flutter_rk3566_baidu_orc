@@ -120,10 +120,10 @@ public class DataBaseManager {
               public void run() {
                 synchronized (getAllUserList()) {
                   ModelManager.getInstance().getFaceFeature().featurePush(getAllUserList());
+                  if (listener != null) {
+                    listener.initFullUsersSuccess();
+                  }
                   if (users != null && users.size() > 0) {
-                    if (listener != null) {
-                      listener.initFullUsersSuccess();
-                    }
                     isPush = true;
                   }
                 }
