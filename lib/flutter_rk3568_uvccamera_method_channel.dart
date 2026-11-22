@@ -57,6 +57,11 @@ class MethodChannelFlutterRk3568Uvccamera
   }
 
   @override
+  Future<void> stopDetect() {
+    return methodChannel.invokeMethod<void>('stopDetect');
+  }
+
+  @override
   Future<String?> getDeviceId() {
     return methodChannel.invokeMethod<String>('getDeviceId');
   }

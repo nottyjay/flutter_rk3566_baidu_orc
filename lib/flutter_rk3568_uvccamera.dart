@@ -141,6 +141,11 @@ class FlutterRk3568Uvccamera {
     return FlutterRk3568UvccameraPlatform.instance.runDetect();
   }
 
+  /// 停止人脸/二维码检测（runDetect 的对称操作）
+  Future<void> stopDetect() {
+    return FlutterRk3568UvccameraPlatform.instance.stopDetect();
+  }
+
   Future<String?> getDeviceId() {
     return FlutterRk3568UvccameraPlatform.instance.getDeviceId();
   }

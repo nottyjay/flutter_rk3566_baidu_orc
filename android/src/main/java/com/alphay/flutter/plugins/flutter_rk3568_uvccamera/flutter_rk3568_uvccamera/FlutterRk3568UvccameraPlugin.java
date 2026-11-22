@@ -85,11 +85,15 @@ public class FlutterRk3568UvccameraPlugin
       ArcFaceUtils.reAddFace(facePath, rk3568UvcCameraCallback);
       result.success(true);
     } else if (call.method.equals("runDetect")) {
-      // 同时打开摄像头进行人脸识别、二维码识别、IC 卡读卡
+      // 打开摄像头进行人脸识别、二维码识别
       if (!isRunDetect) {
         isRunDetect = true;
         runDetect();
       }
+      result.success(true);
+    } else if (call.method.equals("stopDetect")) {
+      // 停止人脸/二维码检测（runDetect 的对称操作）
+      stopDetect();
       result.success(true);
     } else if (call.method.equals("getDeviceId")) {
       // 获取设备指纹
@@ -99,6 +103,15 @@ public class FlutterRk3568UvccameraPlugin
     }
   }
 
+
+  /** 停止检测：取消后台任务、关闭人脸识别摄像头 Fragment（isRunDetect 复位） */
+  private void stopDetect() {
+    closeAllFuture();
+    if (fragment != null) {
+      fragment.dismissAllowingStateLoss();
+      fragment = null;
+    }
+  }
 
   private void runDetect() {
     FragmentActivity activity = (FragmentActivity) activityBinding.getActivity();
