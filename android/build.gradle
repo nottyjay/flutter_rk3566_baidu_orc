@@ -176,10 +176,10 @@ public static String getFileMD5(File file) {
 
 // ===============face-sdk 模型编译期下载 start=====================
 // 模型不随仓库分发：编译时检查本地 assets 下模型是否齐全，缺失则从远端下载解压。
-// 默认地址指向 gitee Release，可用 -PfaceModelsUrl=... 覆盖（如内网镜像），校验和同理 -PfaceModelsSha256=...。
+// 默认地址指向 GitHub Release，可用 -PfaceModelsUrl=... 覆盖（如内网镜像），校验和同理 -PfaceModelsSha256=...。
 def faceModelsAssetsDir = file("src/main/assets/face-sdk-models")
 def faceModelsUrl = project.findProperty("faceModelsUrl")
-        ?: "https://gitee.com/anhui-infomation/flutter_rk3568_uvccamera/releases/download/models-v1.0.0/face-sdk-models.zip"
+        ?: "https://github.com/nottyjay/flutter_rk3566_baidu_orc/releases/download/models-v1.0.0/face-sdk-models.zip"
 def faceModelsSha256 = project.findProperty("faceModelsSha256")
         ?: "ce270e30e808bae127024dea3bad79101b01a3205ef19c851c39aa3e2b344b58"
 def faceModelsCache = file("${buildDir}/face-sdk-cache/face-sdk-models.zip")
