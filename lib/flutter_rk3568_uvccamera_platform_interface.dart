@@ -17,7 +17,6 @@ class FlutterRk3568UvccameraCallbacks {
     this.onUpdateAddFaceProcess,
     this.onFindQrCodeSuccess,
     this.onFindPersonSuccess,
-    this.onReadICCardIdSuccess,
     this.onDismiss,
   });
 
@@ -33,7 +32,6 @@ class FlutterRk3568UvccameraCallbacks {
   final void Function(double percent)? onUpdateAddFaceProcess;
   final void Function(String qrCode)? onFindQrCodeSuccess;
   final void Function(List<FlutterRk3568UvccameraFindUser> persons)? onFindPersonSuccess;
-  final void Function(String cardId)? onReadICCardIdSuccess;
   final void Function()? onDismiss;
 }
 
@@ -60,9 +58,6 @@ abstract class FlutterRk3568UvccameraPlatform extends PlatformInterface {
     throw UnimplementedError('initQrcodeEngine() has not been implemented.');
   }
 
-  Future<void> initICCardReader() {
-    throw UnimplementedError('initICCardReader() has not been implemented.');
-  }
 
   Future<void> addFace(String facePath) {
     throw UnimplementedError('addFace() has not been implemented.');

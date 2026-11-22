@@ -120,9 +120,6 @@ class FlutterRk3568Uvccamera {
     return FlutterRk3568UvccameraPlatform.instance.initQrcodeEngine();
   }
 
-  Future<void> initICCardReader() {
-    return FlutterRk3568UvccameraPlatform.instance.initICCardReader();
-  }
 
   Future<void> addFace(String facePath) {
     return FlutterRk3568UvccameraPlatform.instance.addFace(facePath);

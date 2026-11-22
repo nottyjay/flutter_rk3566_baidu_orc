@@ -11,7 +11,6 @@ import com.aialphay.android.rk3568.arcface.callback.ArcFaceEngineCallback;
 import com.aialphay.android.rk3568.arcface.config.ArcFaceConfig;
 import com.aialphay.android.rk3568.arcface.engine.ArcFaceEngine;
 import com.aialphay.android.rk3568.arcface.manager.DataBaseManager;
-import com.aialphay.android.rk3568.iccard.ICCardReadService;
 import com.aialphay.android.rk3568.iccard.callback.ICCardReadCallback;
 import com.aialphay.android.rk3568.utils.FileUtils;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.callback.Rk3568UvcCameraCallback;
@@ -65,9 +64,7 @@ public class FlutterRk3568UvccameraPlugin
       OpenCVLoader.initLocal();
       WeChatQRCodeDetector.init(this.activityBinding.getActivity());
       result.success(true);
-    } else if (call.method.equals("initICCardReader")) {
-      ICCardReadService.getInstance().initICCardReadService(this.activityBinding.getActivity());
-      result.success(true);
+    }
     } else if (call.method.equals("addFace")) {
       String facePath = call.argument("facePath");
       ArcFaceUtils.addFace(facePath, rk3568UvcCameraCallback);
@@ -93,7 +90,7 @@ public class FlutterRk3568UvccameraPlugin
       // 同时打开摄像头进行人脸识别、二维码识别、IC 卡读卡
       if (!isRunDetect) {
         isRunDetect = true;
-        runReadListener();
+        runDetect();
       }
       result.success(true);
     } else if (call.method.equals("getDeviceId")) {
@@ -104,18 +101,6 @@ public class FlutterRk3568UvccameraPlugin
     }
   }
 
-  private void runReadListener() {
-    // 运行 IC 卡监听
-    ICCardReadService.getInstance()
-        .startReadICCardID(
-            new ICCardReadCallback() {
-              @Override
-              public void onReaCardIDSuccess(String cardId) {
-                rk3568UvcCameraCallback.readICCardIdSuccess(cardId);
-              }
-            });
-    runDetect();
-  }
 
   private void runDetect() {
     FragmentActivity activity = (FragmentActivity) activityBinding.getActivity();
@@ -310,11 +295,6 @@ public class FlutterRk3568UvccameraPlugin
     if (ArcFaceConstants.livenessCheckFuture != null
         && !ArcFaceConstants.livenessCheckFuture.isDone()) {
       ArcFaceConstants.livenessCheckFuture.cancel(true);
-    }
-    ICCardReadService.getInstance().setFinished(true);
-    if (ArcFaceConstants.icCardFuture != null && !ArcFaceConstants.icCardFuture.isDone()) {
-      Log.d(TAG, "关闭读卡器");
-      ArcFaceConstants.icCardFuture.cancel(true);
     }
     isRunDetect = false;
   }
