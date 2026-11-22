@@ -51,7 +51,7 @@ LOCAL_CFLAGS := $(LOCAL_C_INCLUDES:%=-I%)
 LOCAL_CFLAGS += -DANDROID_NDK
 
 # the list of additional linker flags for use in building your shared library or executable
-#LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -ldl	# to avoid NDK issue(no need for static library)
+#LOCAL_LDLIBS := -ldl	# to avoid NDK issue(no need for static library)
 
 # forces the build system to generate the module's object files in 32-bit arm mode
 LOCAL_ARM_MODE := arm
@@ -184,7 +184,7 @@ LOCAL_EXPORT_C_INCLUDES := \
 
 LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true
 
-LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -ldl	# to avoid NDK issue(no need for static library)
+LOCAL_LDLIBS := -ldl	# to avoid NDK issue(no need for static library)
 
 LOCAL_WHOLE_STATIC_LIBRARIES = jpeg-turbo212_static
 

@@ -8,6 +8,7 @@ public class ArcFaceConfig {
 
   // ================== 模型配置 ====================
   private String faceImagesPath;
+  private String dbPath;
   private int maxSearchNum = 2;
   private int maxDetectNum = 10;
   // RGB 预览Y轴转向falese为0，true为180
@@ -152,6 +153,14 @@ public class ArcFaceConfig {
 
   public String getFaceImagesPath() {
     return faceImagesPath;
+  }
+
+  public String getDbPath() {
+    return dbPath;
+  }
+
+  public void setDbPath(String dbPath) {
+    this.dbPath = dbPath;
   }
 
   public void setFaceImagesPath(String faceImagesPath) {
@@ -551,6 +560,10 @@ public class ArcFaceConfig {
     String faceImagesPath = (String) arguments.get("faceImagesPath");
     if (faceImagesPath != null) {
       this.faceImagesPath = faceImagesPath;
+    }
+    String dbPath = (String) arguments.get("dbPath");
+    if (dbPath != null) {
+      this.dbPath = dbPath;
     }
     String licenseKey = (String) arguments.get("licenseKey");
     if (licenseKey != null) {

@@ -23,6 +23,7 @@ class FlutterRk3568UvccameraConfig {
     this.rgbVideoDirection,
     this.nirVideoDirection,
     this.faceImagesPath,
+    this.dbPath,
     this.licenseKey,
     this.activeLicenseType,
   });
@@ -46,6 +47,7 @@ class FlutterRk3568UvccameraConfig {
   final int? rgbVideoDirection;
   final int? nirVideoDirection;
   final String? faceImagesPath;
+  final String? dbPath;
   final String? licenseKey;
   final String? activeLicenseType;
 
@@ -69,6 +71,7 @@ class FlutterRk3568UvccameraConfig {
       'rgbVideoDirection': rgbVideoDirection ?? 0,
       'nirVideoDirection': nirVideoDirection ?? 0,
       'faceImagesPath': faceImagesPath,
+      'dbPath': dbPath,
       'licenseKey': licenseKey,
       'activeLicenseType': activeLicenseType,
     };

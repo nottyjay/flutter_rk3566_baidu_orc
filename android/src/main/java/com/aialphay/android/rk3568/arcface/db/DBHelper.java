@@ -33,6 +33,11 @@ public class DBHelper extends SQLiteOpenHelper {
     super(context, DB_NAME, null, VERSION);
   }
 
+  /** 使用指定的数据库文件路径（支持绝对路径，用于将数据库外置到 sdcard 等） */
+  public DBHelper(Context context, String dbPath) {
+    super(context, dbPath, null, VERSION);
+  }
+
   @Override
   public void onCreate(SQLiteDatabase db) {
     createTables(db);

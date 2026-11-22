@@ -13,6 +13,13 @@ import com.aialphay.android.rk3568.arcface.bean.Group;
 import com.aialphay.android.rk3568.arcface.bean.User;
 import com.aialphay.android.rk3568.arcface.callback.DBLoadListener;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,6 +41,9 @@ public class DBManager {
   // 默认组别是0
   public static final String GROUP_ID = "0";
 
+  /** 默认内部数据库名（与 DBHelper 保持一致） */
+  private static final String INTERNAL_DB_NAME = "face.db";
+
   /**
    * 单例模式，初始化DBManager
    *
@@ -47,17 +57,82 @@ public class DBManager {
   }
 
   /**
-   * 数据库初始化
+   * 数据库初始化（使用默认内部路径）
    *
    * @param context 当前上下文
    */
   public void init(Context context) {
+    init(context, null);
+  }
+
+  /**
+   * 数据库初始化
+   *
+   * <p>当 dbPath 为非空绝对路径时，数据库将外置到该路径：
+   * 首次使用时若内部 databases/face.db 存在而外部不存在，会自动迁移（拷贝并删除内部源文件）。
+   *
+   * @param context 当前上下文
+   * @param dbPath 数据库文件的绝对路径，为空时使用默认内部路径
+   */
+  public void init(Context context, String dbPath) {
     if (context == null) {
       return;
     }
 
     if (mDBHelper == null) {
-      mDBHelper = new DBHelper(context.getApplicationContext());
+      File dbFile = resolveDatabaseFile(context.getApplicationContext(), dbPath);
+      mDBHelper = new DBHelper(context.getApplicationContext(), dbFile.getAbsolutePath());
+    }
+  }
+
+  private static File resolveDatabaseFile(Context context, String dbPath) {
+    File internalDb = context.getDatabasePath(INTERNAL_DB_NAME);
+    if (TextUtils.isEmpty(dbPath)) {
+      return internalDb;
+    }
+
+    File target = new File(dbPath);
+    File parent = target.getParentFile();
+    if (parent != null && !parent.exists()) {
+      parent.mkdirs();
+    }
+    migrateIfNeeded(internalDb, target);
+    return target;
+  }
+
+  /** 将内部数据库一次性迁移到外部路径：先拷贝校验，成功后删除内部源文件 */
+  private static void migrateIfNeeded(File internalDb, File target) {
+    if (target.exists() || !internalDb.exists() || internalDb.length() == 0) {
+      return;
+    }
+    try {
+      copyFile(internalDb, target);
+      File internalJournal = new File(internalDb.getPath() + "-journal");
+      if (internalJournal.exists() && internalJournal.length() > 0) {
+        copyFile(internalJournal, new File(target.getPath() + "-journal"));
+      }
+      if (target.exists() && target.length() == internalDb.length()) {
+        internalDb.delete();
+        internalJournal.delete();
+        Log.i(TAG, "face.db migrated to " + target.getAbsolutePath());
+      }
+    } catch (IOException e) {
+      Log.e(TAG, "migrate face.db failed, fallback to internal", e);
+      if (target.exists()) {
+        target.delete();
+      }
+    }
+  }
+
+  private static void copyFile(File src, File dst) throws IOException {
+    try (InputStream in = new FileInputStream(src);
+        OutputStream out = new FileOutputStream(dst)) {
+      byte[] buf = new byte[8192];
+      int len;
+      while ((len = in.read(buf)) > 0) {
+        out.write(buf, 0, len);
+      }
+      out.flush();
     }
   }
 

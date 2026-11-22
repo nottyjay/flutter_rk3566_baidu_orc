@@ -78,7 +78,7 @@ public class DataBaseManager {
 
   public void initDatabases(Context context, DataBaseListener listener) {
     isPush = false;
-    DBManager.getInstance().init(context);
+    DBManager.getInstance().init(context, ArcFaceConfig.getInstance().getDbPath());
     initPush(listener);
   }
 
