@@ -11,7 +11,6 @@ import com.aialphay.android.rk3568.arcface.callback.ArcFaceEngineCallback;
 import com.aialphay.android.rk3568.arcface.config.ArcFaceConfig;
 import com.aialphay.android.rk3568.arcface.engine.ArcFaceEngine;
 import com.aialphay.android.rk3568.arcface.manager.DataBaseManager;
-import com.aialphay.android.rk3568.iccard.callback.ICCardReadCallback;
 import com.aialphay.android.rk3568.utils.FileUtils;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.callback.Rk3568UvcCameraCallback;
 import com.alphay.flutter.plugins.flutter_rk3568_uvccamera.flutter_rk3568_uvccamera.search.SearchUVCCamaraFragment;
@@ -64,7 +63,6 @@ public class FlutterRk3568UvccameraPlugin
       OpenCVLoader.initLocal();
       WeChatQRCodeDetector.init(this.activityBinding.getActivity());
       result.success(true);
-    }
     } else if (call.method.equals("addFace")) {
       String facePath = call.argument("facePath");
       ArcFaceUtils.addFace(facePath, rk3568UvcCameraCallback);
@@ -249,20 +247,6 @@ public class FlutterRk3568UvccameraPlugin
                       fragment.dismissAllowingStateLoss();
                     }
                     channel.invokeMethod("findPersonSuccess", persons);
-                  });
-        }
-
-        @Override
-        public void readICCardIdSuccess(String cardId) {
-          closeAllFuture();
-          activityBinding
-              .getActivity()
-              .runOnUiThread(
-                  () -> {
-                    if (fragment != null) {
-                      fragment.dismissAllowingStateLoss();
-                    }
-                    channel.invokeMethod("readICCardIdSuccess", cardId);
                   });
         }
 

@@ -4,7 +4,6 @@ public class FlutterRk3568Constants {
 
   public static Boolean isOpenArcFace = false;
 
-  public static Boolean isOpenICCard = false;
 
   public static Boolean isOpenQrCode = false;
 }

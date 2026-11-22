@@ -26,11 +26,6 @@ class MethodChannelFlutterRk3568Uvccamera
   }
 
   @override
-  Future<void> initICCardReader() {
-    return methodChannel.invokeMethod<void>('initICCardReader');
-  }
-
-  @override
   Future<void> addFace(String facePath) {
     return methodChannel.invokeMethod<void>('addFace', <String, dynamic>{
       'facePath': facePath,
@@ -137,10 +132,6 @@ class MethodChannelFlutterRk3568Uvccamera
             .map((map) => FlutterRk3568UvccameraFindUser.fromMap(map))
             .toList();
         callbacks.onFindPersonSuccess?.call(persons);
-        break;
-      case 'readICCardIdSuccess':
-        final String cardId = call.arguments as String? ?? '';
-        callbacks.onReadICCardIdSuccess?.call(cardId);
         break;
       case 'onDismiss':
         callbacks.onDismiss?.call();

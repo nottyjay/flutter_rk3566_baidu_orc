@@ -74,7 +74,5 @@ public class ArcFaceConstants {
   public static ExecutorService qrCodeExecutorService = Executors.newSingleThreadExecutor();
   public static Future qrCodeFuture;
 
-  public static ExecutorService icCardExecutorService = Executors.newSingleThreadExecutor();
-  public static Future icCardFuture;
   public static boolean canDetect = false;
 }
