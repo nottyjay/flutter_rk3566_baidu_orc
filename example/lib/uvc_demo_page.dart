@@ -71,9 +71,6 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
             _importPercent = 0.0;
           });
         },
-        onReadICCardIdSuccess: (cardId) {
-          print("id 卡卡号：$cardId");
-        },
         onDismiss: () {
           print("检测界面关闭");
         },
@@ -101,7 +98,6 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
     );
     await plugin.initFaceEngine(config);
     await plugin.initQrcodeEngine();
-    await plugin.initICCardReader();
   }
 
   Future<void> _onInitFaces() async {
