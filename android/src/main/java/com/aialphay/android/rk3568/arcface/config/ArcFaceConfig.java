@@ -550,13 +550,14 @@ public class ArcFaceConfig {
       this.mirrorVideoNIR = mirrorVideoNIR;
     }
     int rgbVideoDirection = (int) arguments.get("rgbVideoDirection");
-    if (rgbVideoDirection != 0) {
-      this.rgbVideoDirection = rgbVideoDirection;
-    }
+    this.rgbVideoDirection = rgbVideoDirection;
+    // 修复：渲染层（AbsSearchUVCCamaraFragment CameraBuilder.setDegree）消费的是
+    // detectDirection 字段，此前设置页写入的 videoDirection 从未接通，导致
+    // 摄像头旋转设置 180/0 无差异。同步赋值使设置生效（0/90/180/270 均有效）。
+    this.rgbDetectDirection = rgbVideoDirection;
     int nirVideoDirection = (int) arguments.get("nirVideoDirection");
-    if (nirVideoDirection != 0) {
-      this.nirVideoDirection = nirVideoDirection;
-    }
+    this.nirVideoDirection = nirVideoDirection;
+    this.nirDetectDirection = nirVideoDirection;
     String faceImagesPath = (String) arguments.get("faceImagesPath");
     if (faceImagesPath != null) {
       this.faceImagesPath = faceImagesPath;
