@@ -209,7 +209,9 @@ static void downloadToFile(String urlStr, File target) {
                     + "\n可检查网络，或使用内网镜像: ./gradlew -PfaceModelsUrl=<镜像地址>")
         }
         target.parentFile.mkdirs()
-        conn.inputStream.withStream { input -> target.newOutputStream() { output -> input >> output } }
+        conn.inputStream.withStream { input ->
+            target.withOutputStream { output -> output << input }
+        }
         conn.disconnect()
         return
     }
