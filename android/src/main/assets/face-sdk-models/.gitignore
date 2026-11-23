@@ -1,4 +1,6 @@
 # 模型文件不随仓库分发，编译时由 android/build.gradle 的 ensureFaceModels 任务自动下载
-/*
-!/.gitignore
-!/README.md
+*.rknn.encrypted
+*.model.int8-*
+*.bin
+output
+.svn

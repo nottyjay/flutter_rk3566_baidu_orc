@@ -79,7 +79,6 @@ abstract class FlutterRk3568UvccameraPlatform extends PlatformInterface {
     throw UnimplementedError('runDetect() has not been implemented.');
   }
 
-  @override
   Future<void> stopDetect() {
     throw UnimplementedError('stopDetect() has not been implemented.');
   }

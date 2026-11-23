@@ -1,7 +1,8 @@
 name: flutter_rk3568_uvccamera
 description: "A Flutter Plugin for Face Recognition and QR Code Scanning with UVCCamera on RK3568 Android"
 version: 0.0.1
-homepage:
+homepage: https://github.com/nottyjay/flutter_rk3566_baidu_orc
+repository: https://github.com/nottyjay/flutter_rk3566_baidu_orc
 
 environment:
   sdk: ^3.10.4
