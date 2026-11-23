@@ -35,7 +35,6 @@ migrate_working_dir/
 .trae/
 openspec/
 AGENTS.md
-CHANGELOG.md
 QODER.md
 **/m2repository/
 
