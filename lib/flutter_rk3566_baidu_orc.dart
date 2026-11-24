@@ -1,6 +1,6 @@
-import 'flutter_rk3568_uvccamera_platform_interface.dart';
+import 'flutter_rk3566_baidu_orc_platform_interface.dart';
 
-export 'flutter_rk3568_uvccamera_platform_interface.dart'
+export 'flutter_rk3566_baidu_orc_platform_interface.dart'
     show FlutterRk3568UvccameraCallbacks;
 
 class FlutterRk3568UvccameraConfig {

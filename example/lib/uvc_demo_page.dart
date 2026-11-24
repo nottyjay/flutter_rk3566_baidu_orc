@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_rk3568_uvccamera/flutter_rk3568_uvccamera.dart';
+import 'package:flutter_rk3566_baidu_orc/flutter_rk3566_baidu_orc.dart';
 
 class UvcDemoPage extends StatefulWidget {
   const UvcDemoPage({super.key});
@@ -142,7 +142,7 @@ class _UvcDemoPageState extends State<UvcDemoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('flutter_rk3568_uvccamera example')),
+      appBar: AppBar(title: const Text('flutter_rk3566_baidu_orc example')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

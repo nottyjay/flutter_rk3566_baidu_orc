@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 
-import 'flutter_rk3568_uvccamera_platform_interface.dart';
-import 'flutter_rk3568_uvccamera.dart';
+import 'flutter_rk3566_baidu_orc_platform_interface.dart';
+import 'flutter_rk3566_baidu_orc.dart';
 
 class MethodChannelFlutterRk3568Uvccamera
     extends FlutterRk3568UvccameraPlatform {

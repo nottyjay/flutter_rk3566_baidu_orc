@@ -1,7 +1,7 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'flutter_rk3568_uvccamera_method_channel.dart';
-import 'flutter_rk3568_uvccamera.dart';
+import 'flutter_rk3566_baidu_orc_method_channel.dart';
+import 'flutter_rk3566_baidu_orc.dart';
 
 class FlutterRk3568UvccameraCallbacks {
   FlutterRk3568UvccameraCallbacks({

@@ -83,7 +83,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.0"
-  flutter_rk3568_uvccamera:
+  flutter_rk3566_baidu_orc:
     dependency: "direct main"
     description:
       path: ".."
