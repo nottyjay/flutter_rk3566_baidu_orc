@@ -1,0 +1,30 @@
+name: Publish to pub.dev
+
+# 推送版本标签时自动发布，如 v0.0.2
+# 前置：GitHub 仓库 Settings -> Secrets and variables -> Actions 添加 PUB_CREDENTIALS
+# （内容为本机 ~/.config/dart/pub-credentials.json）
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.5'
+          channel: stable
+          cache: true
+
+      - name: Restore pub credentials
+        run: |
+          mkdir -p ~/.config/dart
+          echo "${{ secrets.PUB_CREDENTIALS }}" > ~/.config/dart/pub-credentials.json
+
+      - name: Publish
+        run: flutter pub publish --force
